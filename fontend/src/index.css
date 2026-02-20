@@ -1,0 +1,383 @@
+@import "tailwindcss";
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pageSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pageSlideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(12px); }
+}
+
+@keyframes searchItemFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hide scrollbar for hourly forecast */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth page transitions */
+.weather-section {
+  animation: slideUp 0.5s ease-out both;
+}
+
+.weather-section:nth-child(1) { animation-delay: 0s; }
+.weather-section:nth-child(2) { animation-delay: 0.05s; }
+.weather-section:nth-child(3) { animation-delay: 0.1s; }
+.weather-section:nth-child(4) { animation-delay: 0.15s; }
+.weather-section:nth-child(5) { animation-delay: 0.2s; }
+.weather-section:nth-child(6) { animation-delay: 0.25s; }
+.weather-section:nth-child(7) { animation-delay: 0.3s; }
+.weather-section:nth-child(8) { animation-delay: 0.35s; }
+.weather-section:nth-child(9) { animation-delay: 0.4s; }
+
+/* System font stack */
+html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* Prevent rubber banding on iOS */
+html, body {
+  overscroll-behavior: none;
+}
+
+/* Placeholder color for search input */
+input::placeholder {
+  color: inherit;
+  opacity: 0.4;
+}
+
+/* Chart line draw animation */
+@keyframes chartLineDraw {
+  from {
+    stroke-dashoffset: 2000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.chart-line-animate {
+  stroke-dasharray: 2000;
+  animation: chartLineDraw 1.2s ease-out forwards;
+}
+
+/* Hourly row hover */
+@media (hover: hover) {
+  .hour-row-hover:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+  }
+}
+
+/* Daily forecast row fade-in */
+@keyframes dailyRowFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-dailyRowFadeIn {
+  animation: dailyRowFadeIn 0.35s ease-out both;
+}
+
+/* Slide down for expanded detail */
+@keyframes slideDownExpand {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDownExpand 0.25s ease-out both;
+}
+
+/* Page transitions */
+.animate-pageSlideIn {
+  animation: pageSlideIn 0.3s ease-out both;
+}
+
+.animate-pageSlideOut {
+  animation: pageSlideOut 0.28s ease-in both;
+}
+
+/* AQI Page Animations */
+@keyframes aqiHeroFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes aqiRingDraw {
+  from {
+    stroke-dashoffset: 520;
+  }
+  to {
+    stroke-dashoffset: var(--final-offset, 0);
+  }
+}
+
+.aqi-ring-animate {
+  animation: aqiRingReveal 1.2s ease-out forwards;
+}
+
+@keyframes aqiRingReveal {
+  from {
+    stroke-dasharray: 0 9999;
+  }
+  to {
+    stroke-dasharray: 9999 9999;
+  }
+}
+
+@keyframes aqiRowFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes aqiBarGrow {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--bar-width, 50%);
+  }
+}
+
+/* ========== Weather Map Page ========== */
+
+/* Leaflet overrides - clean dark map */
+.leaflet-container {
+  background: #0a0a1a !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+.leaflet-control-zoom {
+  display: none !important;
+}
+
+/* Remove default Leaflet styling artifacts */
+.leaflet-pane {
+  z-index: 0 !important;
+}
+
+.leaflet-tile-pane {
+  z-index: 0 !important;
+}
+
+.leaflet-overlay-pane {
+  z-index: 1 !important;
+}
+
+/* Time slider custom styling */
+.map-time-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  outline: none;
+  cursor: pointer;
+}
+
+.map-time-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s;
+}
+
+.map-time-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.map-time-slider::-webkit-slider-thumb:active {
+  transform: scale(0.95);
+}
+
+.map-time-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.map-time-slider::-moz-range-track {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Settings page animations */
+@keyframes settingsFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Plant recommendation page animations */
+@keyframes plantFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes plantCardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* My Plants Dashboard animations */
+@keyframes dashFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dashTaskSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes dashCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Care Schedule page animations */
+@keyframes scheduleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scheduleTaskSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scheduleCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

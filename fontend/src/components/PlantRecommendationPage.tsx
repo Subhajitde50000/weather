@@ -18,6 +18,7 @@ import {
 } from "@/data/plantData";
 import { PlantDetailPage } from "./PlantDetailPage";
 import { Atmosphere } from "./Atmosphere";
+import { PhotoBackground } from "./PhotoBackground";
 import { PlantPhoto } from "./PlantPhoto";
 
 interface PlantRecommendationPageProps {
@@ -49,7 +50,7 @@ function EnvCard({
 
   return (
     <div
-      className="bg-white/8 backdrop-blur-md rounded-xl p-3.5 border border-white/5 flex flex-col items-center gap-1.5"
+      className="bg-white/10 backdrop-blur-xl rounded-xl p-3.5 border border-white/10 flex flex-col items-center gap-1.5"
       style={{
         animation: `plantFadeIn 0.3s ease-out ${0.08 + index * 0.05}s both`,
       }}
@@ -87,7 +88,7 @@ function PlantCard({
 
   return (
     <div
-      className="bg-white/8 backdrop-blur-md rounded-2xl border border-white/5 overflow-hidden cursor-pointer hover:bg-white/12 active:scale-[0.99] transition-all duration-150"
+      className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden cursor-pointer hover:bg-white/12 active:scale-[0.99] transition-all duration-150"
       style={{
         animation: `plantCardSlideIn 0.4s ease-out ${0.15 + index * 0.08}s both`,
       }}
@@ -265,10 +266,17 @@ export function PlantRecommendationPage({
             : "pageSlideIn 0.3s ease-out",
         }}
       >
-        <Atmosphere theme={theme} appTheme="dark" />
+        <PhotoBackground
+          src="/backgrounds/plant-care.jpg"
+          alt="Lush houseplants by a rain-covered window"
+          appTheme="dark"
+          weatherTheme={theme}
+          strength="strong"
+        />
+        <Atmosphere theme={theme} appTheme="dark" baseWash={false} />
         <div className="relative z-10 flex min-h-0 flex-1 flex-col">
         {/* ===== Sticky Header ===== */}
-        <div className="sticky top-0 z-20 backdrop-blur-xl bg-black/5">
+        <div className="sticky top-0 z-20 backdrop-blur-xl bg-[#071410]/45">
           <div className="max-w-lg mx-auto">
             <div className="flex items-center gap-3 px-4 pt-4 pb-3">
               <button
@@ -371,7 +379,7 @@ export function PlantRecommendationPage({
               className="px-4 pt-3 pb-4"
               style={{ animation: "plantFadeIn 0.35s ease-out 0.12s both" }}
             >
-              <div className="bg-white/6 backdrop-blur-md rounded-xl px-4 py-3 border border-white/5">
+              <div className="bg-white/9 backdrop-blur-xl rounded-xl px-4 py-3 border border-white/5">
                 <div className="flex items-start gap-2.5">
                   <span className="text-base mt-0.5 flex-shrink-0">🧠</span>
                   <p className={`text-xs font-light ${colors.secondary} leading-relaxed`}>

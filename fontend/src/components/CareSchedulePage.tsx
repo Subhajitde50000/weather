@@ -6,6 +6,7 @@ import {
   citiesWeather,
 } from "@/data/weatherData";
 import { Atmosphere } from "./Atmosphere";
+import { PhotoBackground } from "./PhotoBackground";
 import { PlantPhoto } from "./PlantPhoto";
 import { getEnvironment } from "@/data/plantData";
 import { type MyPlant, generateTasks, type PlantTask } from "@/data/myPlantsData";
@@ -54,7 +55,7 @@ function ContextStrip({
       className="px-4 pt-4 pb-2"
       style={{ animation: "scheduleFadeIn 0.3s ease-out both" }}
     >
-      <div className="bg-white/8 backdrop-blur-md rounded-2xl px-4 py-3.5 border border-white/5">
+      <div className="bg-white/10 backdrop-blur-xl rounded-2xl px-4 py-3.5 border border-white/5">
         {/* Date line */}
         <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-2">
@@ -124,7 +125,7 @@ function ScheduleTaskCard({
 
   return (
     <div
-      className={`flex items-center gap-3 p-4 rounded-xl bg-white/6 border border-white/5 border-l-[3px] ${priorityBorder} transition-all duration-300 ${
+      className={`flex items-center gap-3 p-4 rounded-xl bg-white/9 border border-white/10 border-l-[3px] ${priorityBorder} transition-all duration-300 ${
         isDone ? "opacity-35 scale-[0.98]" : ""
       }`}
       style={{
@@ -280,7 +281,7 @@ function WeeklyCalendar({
               <div
                 key={task.id}
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-lg ${
-                  task.done ? "bg-white/3 opacity-50" : "bg-white/5"
+                  task.done ? "bg-white/4 opacity-50" : "bg-white/8"
                 }`}
               >
                 <span className="text-xs">{task.icon}</span>
@@ -326,7 +327,7 @@ function PlantBreakdown({
         {schedules.map((sched, i) => (
           <div
             key={sched.plantId}
-            className="bg-white/6 backdrop-blur-md rounded-2xl border border-white/5 p-4"
+            className="bg-white/9 backdrop-blur-xl rounded-2xl border border-white/10 p-4"
             style={{
               animation: `scheduleCardFadeIn 0.3s ease-out ${0.18 + i * 0.06}s both`,
             }}
@@ -501,7 +502,7 @@ function ReminderStrip({ theme }: { theme: WeatherTheme }) {
         </span>
       </div>
 
-      <div className="bg-white/6 backdrop-blur-md rounded-2xl border border-white/5 p-4">
+      <div className="bg-white/9 backdrop-blur-xl rounded-2xl border border-white/10 p-4">
         {/* Enable/Disable */}
         <div className="flex items-center justify-between mb-3.5">
           <div className="flex items-center gap-2.5">
@@ -616,7 +617,7 @@ function CareHistory({
         </svg>
       </button>
 
-      <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/5 overflow-hidden">
+      <div className="bg-white/8 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden">
         <div className="divide-y divide-white/5">
           {visibleHistory.map((entry) => (
             <div key={entry.id} className="flex items-center gap-3 px-4 py-3">
@@ -759,9 +760,16 @@ export function CareSchedulePage({
           : "pageSlideIn 0.3s ease-out",
       }}
     >
-      <Atmosphere theme={theme} appTheme="dark" />
+      <PhotoBackground
+        src="/backgrounds/plant-care.jpg"
+        alt="Lush houseplants by a rain-covered window"
+        appTheme="dark"
+        weatherTheme={theme}
+        strength="strong"
+      />
+      <Atmosphere theme={theme} appTheme="dark" baseWash={false} />
       <div className="relative z-10 flex min-h-0 flex-1 flex-col">
-      <div className="sticky top-0 z-20 backdrop-blur-xl bg-black/5">
+      <div className="sticky top-0 z-20 backdrop-blur-xl bg-[#071410]/45">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 px-4 pt-4 pb-3">
             <button

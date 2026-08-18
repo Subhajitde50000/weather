@@ -3,9 +3,14 @@ import { type AppTheme, type WeatherTheme } from "@/data/weatherData";
 interface AtmosphereProps {
   theme: WeatherTheme;
   appTheme: AppTheme;
+  /**
+   * When false, the opaque gradient wash is skipped so a PhotoBackground
+   * underneath stays visible; only particles/effects render (rain, clouds…).
+   */
+  baseWash?: boolean;
 }
 
-export function Atmosphere({ theme, appTheme }: AtmosphereProps) {
+export function Atmosphere({ theme, appTheme, baseWash = true }: AtmosphereProps) {
   const light = appTheme === "light";
 
   const wash =
@@ -31,7 +36,9 @@ export function Atmosphere({ theme, appTheme }: AtmosphereProps) {
 
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden">
-      <div className={`absolute inset-0 bg-gradient-to-b ${wash} transition-colors duration-700`} />
+      {baseWash && (
+        <div className={`absolute inset-0 bg-gradient-to-b ${wash} transition-colors duration-700`} />
+      )}
 
       <div
         className="absolute -top-24 left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full blur-3xl"

@@ -6,6 +6,7 @@ import {
 } from "@/data/weatherData";
 import { getTextColors, getCardBg } from "@/data/weatherData";
 import { Atmosphere } from "./Atmosphere";
+import { PhotoBackground } from "./PhotoBackground";
 
 interface SettingsPageProps {
   weatherTheme: WeatherTheme;
@@ -359,12 +360,19 @@ export function SettingsPage({
           : "pageSlideIn 0.3s ease-out",
       }}
     >
-      <Atmosphere theme={weatherTheme} appTheme={appTheme} />
+      <PhotoBackground
+        src="/backgrounds/settings.jpg"
+        alt="Misty evergreen forest at dawn"
+        appTheme={appTheme}
+        weatherTheme={weatherTheme}
+        strength="strong"
+      />
+      <Atmosphere theme={weatherTheme} appTheme={appTheme} baseWash={false} />
       <div className="relative z-10 flex min-h-0 flex-1 flex-col">
       {/* ========== Sticky Header ========== */}
       <div
         className={`sticky top-0 z-20 backdrop-blur-xl ${
-          isLight ? "bg-white/30" : "bg-black/5"
+          isLight ? "bg-white/35" : "bg-[#071410]/45"
         }`}
       >
         <div className="max-w-lg mx-auto">

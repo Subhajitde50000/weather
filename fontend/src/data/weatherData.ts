@@ -34,6 +34,8 @@ export interface CityWeather {
   cloudCover: number;
   gases: GasMix;
   hourly: HourlyPreview[];
+  /** Root-absolute path to the city backdrop photo used on the home page */
+  photo: string;
 }
 
 export const CITIES = ["Kolkata", "Delhi", "Kharagpur"] as const;
@@ -62,6 +64,7 @@ export const citiesWeather: Record<string, CityWeather> = {
     dewPoint: 26,
     cloudCover: 88,
     gases: { o2: 20.78, co2: 0.046, n2: 78.09, ar: 0.93 },
+    photo: "/backgrounds/kolkata.jpg",
     hourly: [
       { time: "Now", temp: 29, icon: "rainy" },
       { time: "2 PM", temp: 30, icon: "rainy" },
@@ -99,6 +102,7 @@ export const citiesWeather: Record<string, CityWeather> = {
     dewPoint: 27,
     cloudCover: 46,
     gases: { o2: 20.61, co2: 0.054, n2: 78.02, ar: 0.93 },
+    photo: "/backgrounds/delhi.jpg",
     hourly: [
       { time: "Now", temp: 33, icon: "haze" },
       { time: "2 PM", temp: 35, icon: "sunny" },
@@ -136,6 +140,7 @@ export const citiesWeather: Record<string, CityWeather> = {
     dewPoint: 25,
     cloudCover: 74,
     gases: { o2: 20.89, co2: 0.041, n2: 78.1, ar: 0.93 },
+    photo: "/backgrounds/kharagpur.jpg",
     hourly: [
       { time: "Now", temp: 28, icon: "cloudy" },
       { time: "2 PM", temp: 29, icon: "rainy" },
@@ -269,6 +274,11 @@ export function convertWind(kmh: number, windUnit: WindUnit): number {
 
 export function windUnitLabel(windUnit: WindUnit): string {
   return windUnit === "ms" ? "m/s" : "km/h";
+}
+
+/** Backdrop photo for a city; falls back to Kolkata's. */
+export function getCityPhoto(cityName: string): string {
+  return citiesWeather[cityName]?.photo ?? citiesWeather.Kolkata.photo;
 }
 
 export function resolveCity(cityName: string): string {

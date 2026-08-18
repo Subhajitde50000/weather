@@ -3,6 +3,7 @@ import {
   CITIES,
   citiesWeather,
   getTheme,
+  getCityPhoto,
   resolveCity,
   type AppTheme,
   type WindUnit,
@@ -10,6 +11,7 @@ import {
 import { plantDatabase, type Plant } from "@/data/plantData";
 import { getDefaultMyPlants, type MyPlant } from "@/data/myPlantsData";
 import { Atmosphere } from "@/components/Atmosphere";
+import { PhotoBackground } from "@/components/PhotoBackground";
 import { Header } from "@/components/Header";
 import { HeroTemperature } from "@/components/HeroTemperature";
 import { InfoStrip } from "@/components/InfoStrip";
@@ -143,9 +145,18 @@ export function App() {
     );
   }, []);
 
+  const cityPhoto = getCityPhoto(supportedCity);
+
   return (
     <div className="relative min-h-screen overflow-x-hidden">
-      <Atmosphere theme={weatherTheme} appTheme={appTheme} />
+      <PhotoBackground
+        src={cityPhoto}
+        photoKey={supportedCity}
+        alt={`${data.city} skyline`}
+        appTheme={appTheme}
+        weatherTheme={weatherTheme}
+      />
+      <Atmosphere theme={weatherTheme} appTheme={appTheme} baseWash={false} />
 
       <div className="relative z-10">
         <Header

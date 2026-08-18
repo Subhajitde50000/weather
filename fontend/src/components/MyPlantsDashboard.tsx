@@ -6,6 +6,7 @@ import {
   citiesWeather,
 } from "@/data/weatherData";
 import { Atmosphere } from "./Atmosphere";
+import { PhotoBackground } from "./PhotoBackground";
 import { PlantPhoto } from "./PlantPhoto";
 import { getEnvironment, type EnvironmentConditions } from "@/data/plantData";
 import {
@@ -47,7 +48,7 @@ function DashboardHeader({
 }) {
   const colors = themeTextColors[theme];
   return (
-    <div className="sticky top-0 z-20 backdrop-blur-xl bg-black/5">
+    <div className="sticky top-0 z-20 backdrop-blur-xl bg-[#071410]/45">
       <div className="max-w-lg mx-auto">
         <div className="flex items-center gap-3 px-4 pt-4 pb-3">
           <button
@@ -98,7 +99,7 @@ function EnvironmentStrip({
       className="px-4 pt-4 pb-2"
       style={{ animation: "dashFadeIn 0.3s ease-out both" }}
     >
-      <div className="bg-white/8 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/5">
+      <div className="bg-white/10 backdrop-blur-xl rounded-2xl px-4 py-3 border border-white/5">
         <div className="flex items-center justify-between">
           {/* AQI */}
           <div className="flex items-center gap-2">
@@ -171,7 +172,7 @@ function TaskCard({
 
   return (
     <div
-      className={`flex items-center gap-3 p-3.5 rounded-xl bg-white/6 border border-white/5 border-l-[3px] ${priorityBorder} transition-all duration-300 ${
+      className={`flex items-center gap-3 p-3.5 rounded-xl bg-white/6 border border-white/10 border-l-[3px] ${priorityBorder} transition-all duration-300 ${
         isDone ? "opacity-40 scale-[0.98]" : ""
       }`}
       style={{
@@ -232,7 +233,7 @@ function PlantListCard({
 
   return (
     <div
-      className="bg-white/8 backdrop-blur-md rounded-2xl border border-white/5 overflow-hidden transition-all group"
+      className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden transition-all group"
       style={{
         animation: `dashCardFadeIn 0.35s ease-out ${0.1 + index * 0.07}s both`,
       }}
@@ -356,7 +357,7 @@ function HealthSummaryBar({
       className="px-4 pb-2"
       style={{ animation: "dashFadeIn 0.35s ease-out 0.2s both" }}
     >
-      <div className="bg-white/6 backdrop-blur-md rounded-2xl p-4 border border-white/5">
+      <div className="bg-white/9 backdrop-blur-xl rounded-2xl p-4 border border-white/5">
         <span className={`text-xs uppercase tracking-widest ${colors.muted} font-medium`}>
           Overall Plant Health
         </span>
@@ -594,7 +595,14 @@ export function MyPlantsDashboard({
           : "pageSlideIn 0.3s ease-out",
       }}
     >
-      <Atmosphere theme={theme} appTheme="dark" />
+      <PhotoBackground
+        src="/backgrounds/plant-care.jpg"
+        alt="Lush houseplants by a rain-covered window"
+        appTheme="dark"
+        weatherTheme={theme}
+        strength="strong"
+      />
+      <Atmosphere theme={theme} appTheme="dark" baseWash={false} />
       <div className="relative z-10 flex min-h-0 flex-1 flex-col">
       {/* ===== Header ===== */}
       <DashboardHeader theme={theme} plantCount={myPlants.length} onClose={handleClose} />

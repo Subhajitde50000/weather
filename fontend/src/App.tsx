@@ -3,6 +3,7 @@ import {
   CITIES,
   citiesWeather,
   getTheme,
+  getCityPhoto,
   resolveCity,
   type AppTheme,
   type WindUnit,
@@ -10,6 +11,7 @@ import {
 import { plantDatabase, type Plant } from "@/data/plantData";
 import { getDefaultMyPlants, type MyPlant } from "@/data/myPlantsData";
 import { Atmosphere } from "@/components/Atmosphere";
+import { PhotoBackground } from "@/components/PhotoBackground";
 import { Header } from "@/components/Header";
 import { HeroTemperature } from "@/components/HeroTemperature";
 import { InfoStrip } from "@/components/InfoStrip";
@@ -143,9 +145,18 @@ export function App() {
     );
   }, []);
 
+  const cityPhoto = getCityPhoto(supportedCity);
+
   return (
     <div className="relative min-h-screen overflow-x-hidden">
-      <Atmosphere theme={weatherTheme} appTheme={appTheme} />
+      <PhotoBackground
+        src={cityPhoto}
+        photoKey={supportedCity}
+        alt={`${data.city} skyline`}
+        appTheme={appTheme}
+        weatherTheme={weatherTheme}
+      />
+      <Atmosphere theme={weatherTheme} appTheme={appTheme} baseWash={false} />
 
       <div className="relative z-10">
         <Header
@@ -191,6 +202,17 @@ export function App() {
               <p className={`mt-3 text-center text-xs lg:text-left ${ui.muted}`}>
                 {data.state}, India · Tue 18 Aug 2026 · 1:10 PM
               </p>
+              {data.photoCaption && (
+                <p
+                  className={`mt-1.5 flex items-center justify-center gap-1.5 text-center text-[10px] uppercase tracking-[0.18em] lg:justify-start ${ui.faint}`}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
+                  {data.photoCaption}
+                </p>
+              )}
               <InfoStrip
                 high={t(data.high)}
                 low={t(data.low)}

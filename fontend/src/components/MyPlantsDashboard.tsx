@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
+  type AppTheme,
   type WeatherTheme,
   themeTextColors,
-  themeGradients,
   citiesWeather,
 } from "@/data/weatherData";
+import { Atmosphere } from "./Atmosphere";
+import { PlantPhoto } from "./PlantPhoto";
 import { getEnvironment, type EnvironmentConditions } from "@/data/plantData";
 import {
   type MyPlant,
@@ -20,6 +22,7 @@ import {
 
 interface MyPlantsDashboardProps {
   theme: WeatherTheme;
+  appTheme: AppTheme;
   city: string;
   myPlants: MyPlant[];
   isOpen: boolean;
@@ -82,7 +85,7 @@ function EnvironmentStrip({
   theme: WeatherTheme;
 }) {
   const colors = themeTextColors[theme];
-  const cityData = citiesWeather[city] || citiesWeather["New York"];
+  const cityData = citiesWeather[city] || citiesWeather.Kolkata;
   const stress = getStressLevel(env);
 
   const aqiColor =
@@ -205,7 +208,7 @@ function TaskCard({
       </div>
 
       {/* Plant avatar */}
-      <span className="text-xl flex-shrink-0">{task.plantImage}</span>
+      <PlantPhoto src={task.plantImage} alt={task.plantName} size="sm" />
     </div>
   );
 }
@@ -238,9 +241,7 @@ function PlantListCard({
         <div className="flex gap-4">
           {/* LEFT: Image + name */}
           <div className="flex flex-col items-center gap-1.5 flex-shrink-0 w-16">
-            <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-3xl border border-white/5">
-              {plant.image}
-            </div>
+            <PlantPhoto src={plant.image} alt={plant.name} size="md" />
             <span className={`text-xs font-medium ${colors.primary} text-center leading-tight`}>
               {myPlant.nickname || plant.name}
             </span>
@@ -509,6 +510,7 @@ function EmptyState({
 // ========== Main Dashboard Component ==========
 export function MyPlantsDashboard({
   theme,
+  appTheme: _appTheme,
   city,
   myPlants,
   isOpen,
@@ -524,9 +526,8 @@ export function MyPlantsDashboard({
   const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(new Set());
 
   const colors = themeTextColors[theme];
-  const gradient = themeGradients[theme];
 
-  const cityData = citiesWeather[city] || citiesWeather["New York"];
+  const cityData = citiesWeather[city] || citiesWeather.Kolkata;
   const env = useMemo(() => getEnvironment(cityData), [cityData]);
 
   // Generate tasks
@@ -586,13 +587,15 @@ export function MyPlantsDashboard({
 
   return (
     <div
-      className={`fixed inset-0 z-[200] bg-gradient-to-b ${gradient} flex flex-col`}
+      className="fixed inset-0 z-[200] flex flex-col"
       style={{
         animation: isClosing
           ? "pageSlideOut 0.2s ease-in forwards"
           : "pageSlideIn 0.3s ease-out",
       }}
     >
+      <Atmosphere theme={theme} appTheme="dark" />
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
       {/* ===== Header ===== */}
       <DashboardHeader theme={theme} plantCount={myPlants.length} onClose={handleClose} />
 
@@ -737,6 +740,7 @@ export function MyPlantsDashboard({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

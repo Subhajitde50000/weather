@@ -1,18 +1,18 @@
 export interface HourlyEntry {
-  time: string;       // e.g. "Now", "1 PM", "2 AM"
-  hour: number;       // 0-23
-  temp: number;       // Celsius
-  icon: string;       // weather icon key
-  rainChance: number; // 0-100
-  windSpeed: number;  // km/h
+  time: string;
+  hour: number;
+  temp: number;
+  icon: string;
+  rainChance: number;
+  windSpeed: number;
   marker?: "sunrise" | "sunset" | "now";
 }
 
 export interface DayForecast {
-  label: string;       // "Today", "Tomorrow", "Wed"
-  date: string;        // "Feb 8", "Feb 9", "Feb 10"
-  sunrise: string;     // "6:15 AM"
-  sunset: string;      // "6:42 PM"
+  label: string;
+  date: string;
+  sunrise: string;
+  sunset: string;
   hours: HourlyEntry[];
 }
 
@@ -23,179 +23,190 @@ function formatHour(h: number): string {
   return `${h - 12} PM`;
 }
 
-function getDayNames(): [string, string, string] {
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const today = new Date();
-  const d2 = new Date(today);
-  d2.setDate(d2.getDate() + 2);
-  return ["Today", "Tomorrow", days[d2.getDay()]];
+interface CityHourlyConfig {
+  sunrise: number;
+  sunset: number;
+  sunriseLabel: string;
+  sunsetLabel: string;
+  days: Array<{
+    label: string;
+    date: string;
+    temps: number[];
+    rain: number[];
+    wind: number[];
+    icons: string[];
+  }>;
 }
 
-function getDateStrings(): [string, string, string] {
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const dates: string[] = [];
-  for (let i = 0; i < 3; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    dates.push(`${months[d.getMonth()]} ${d.getDate()}`);
-  }
-  return dates as [string, string, string];
-}
+const cityHourly: Record<string, CityHourlyConfig> = {
+  Kolkata: {
+    sunrise: 5,
+    sunset: 18,
+    sunriseLabel: "5:22 AM",
+    sunsetLabel: "6:04 PM",
+    days: [
+      {
+        label: "Today",
+        date: "Aug 18",
+        temps: [26, 26, 25, 25, 25, 26, 27, 28, 28, 29, 29, 30, 30, 31, 30, 29, 28, 27, 27, 26, 26, 26, 25, 25],
+        rain: [55, 50, 48, 46, 44, 42, 48, 58, 64, 70, 74, 78, 80, 72, 78, 76, 62, 54, 58, 64, 60, 52, 48, 46],
+        wind: [12, 11, 11, 10, 10, 11, 13, 15, 16, 17, 18, 18, 19, 18, 18, 17, 16, 15, 14, 13, 13, 12, 12, 11],
+        icons: [
+          "night", "night", "night", "night", "night", "rainy", "cloudy", "rainy",
+          "rainy", "rainy", "rainy", "rainy", "cloudy", "rainy", "rainy", "rainy",
+          "cloudy", "cloudy", "night", "rainy", "night", "night", "night", "night",
+        ],
+      },
+      {
+        label: "Tomorrow",
+        date: "Aug 19",
+        temps: [25, 25, 25, 24, 24, 25, 26, 27, 28, 29, 29, 30, 30, 30, 29, 28, 27, 27, 26, 26, 26, 25, 25, 25],
+        rain: [70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 86, 84, 82, 80, 78, 76, 74, 72, 70, 68, 66, 64, 62, 60],
+        wind: [16, 16, 17, 18, 19, 20, 21, 22, 24, 24, 23, 22, 22, 21, 20, 19, 18, 17, 17, 16, 16, 15, 15, 15],
+        icons: [
+          "night", "rainy", "night", "night", "night", "rainy", "rainy", "rainy",
+          "rainy", "rainy", "rainy", "rainy", "rainy", "rainy", "rainy", "cloudy",
+          "rainy", "cloudy", "night", "rainy", "night", "night", "night", "night",
+        ],
+      },
+      {
+        label: "Thu",
+        date: "Aug 20",
+        temps: [25, 25, 24, 24, 24, 25, 26, 27, 27, 28, 29, 29, 29, 28, 28, 27, 27, 26, 26, 26, 25, 25, 25, 25],
+        rain: [82, 84, 86, 88, 90, 92, 90, 88, 86, 84, 82, 80, 84, 86, 88, 84, 80, 76, 74, 72, 70, 68, 66, 64],
+        wind: [18, 18, 19, 20, 21, 22, 22, 22, 21, 21, 20, 20, 19, 19, 18, 18, 17, 16, 16, 15, 15, 14, 14, 14],
+        icons: [
+          "night", "rainy", "night", "night", "night", "rainy", "rainy", "rainy",
+          "rainy", "rainy", "rainy", "rainy", "rainy", "rainy", "rainy", "rainy",
+          "cloudy", "rainy", "night", "rainy", "night", "night", "night", "night",
+        ],
+      },
+    ],
+  },
+  Delhi: {
+    sunrise: 6,
+    sunset: 19,
+    sunriseLabel: "5:51 AM",
+    sunsetLabel: "6:55 PM",
+    days: [
+      {
+        label: "Today",
+        date: "Aug 18",
+        temps: [28, 27, 27, 27, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 35, 34, 32, 31, 30, 29, 29, 28, 28, 28],
+        rain: [18, 16, 14, 12, 12, 14, 16, 18, 20, 22, 24, 28, 30, 32, 34, 36, 30, 24, 20, 18, 16, 16, 14, 14],
+        wind: [8, 7, 7, 7, 8, 8, 9, 10, 11, 11, 12, 12, 13, 12, 12, 11, 11, 10, 9, 9, 8, 8, 8, 8],
+        icons: [
+          "night", "night", "night", "night", "night", "haze", "haze", "haze",
+          "sunny", "sunny", "haze", "sunny", "sunny", "sunny", "haze", "haze",
+          "partly-cloudy", "partly-cloudy", "partly-cloudy", "night", "night", "night", "night", "night",
+        ],
+      },
+      {
+        label: "Tomorrow",
+        date: "Aug 19",
+        temps: [28, 27, 27, 27, 27, 28, 30, 31, 33, 34, 35, 36, 37, 37, 36, 35, 33, 32, 31, 30, 29, 29, 28, 28],
+        rain: [12, 10, 10, 8, 8, 10, 12, 14, 14, 16, 16, 18, 18, 20, 18, 16, 14, 12, 12, 10, 10, 10, 10, 10],
+        wind: [8, 8, 7, 7, 8, 8, 9, 10, 10, 11, 11, 12, 12, 11, 11, 10, 10, 9, 9, 8, 8, 8, 8, 8],
+        icons: [
+          "night", "night", "night", "night", "night", "haze", "sunny", "sunny",
+          "sunny", "sunny", "sunny", "sunny", "sunny", "sunny", "haze", "haze",
+          "partly-cloudy", "haze", "night", "night", "night", "night", "night", "night",
+        ],
+      },
+      {
+        label: "Thu",
+        date: "Aug 20",
+        temps: [28, 27, 27, 26, 26, 27, 29, 30, 32, 33, 34, 35, 35, 34, 33, 32, 31, 30, 29, 29, 28, 28, 27, 27],
+        rain: [22, 20, 18, 18, 20, 24, 28, 32, 36, 40, 44, 48, 52, 54, 50, 46, 40, 34, 30, 26, 24, 22, 22, 20],
+        wind: [10, 10, 11, 11, 12, 13, 14, 15, 16, 16, 16, 16, 15, 15, 14, 14, 13, 12, 12, 11, 11, 10, 10, 10],
+        icons: [
+          "night", "night", "night", "night", "night", "cloudy", "cloudy", "partly-cloudy",
+          "partly-cloudy", "cloudy", "rainy", "rainy", "rainy", "rainy", "cloudy", "cloudy",
+          "partly-cloudy", "cloudy", "night", "night", "night", "night", "night", "night",
+        ],
+      },
+    ],
+  },
+  Kharagpur: {
+    sunrise: 5,
+    sunset: 18,
+    sunriseLabel: "5:24 AM",
+    sunsetLabel: "6:07 PM",
+    days: [
+      {
+        label: "Today",
+        date: "Aug 18",
+        temps: [25, 25, 25, 24, 24, 25, 26, 27, 27, 28, 28, 29, 29, 29, 28, 28, 27, 26, 26, 26, 25, 25, 25, 25],
+        rain: [48, 46, 44, 42, 44, 48, 52, 56, 58, 60, 62, 64, 66, 62, 58, 64, 60, 52, 50, 56, 52, 48, 46, 44],
+        wind: [10, 10, 9, 9, 10, 11, 12, 13, 13, 14, 14, 14, 15, 14, 14, 13, 13, 12, 12, 11, 11, 10, 10, 10],
+        icons: [
+          "night", "night", "night", "night", "night", "cloudy", "cloudy", "cloudy",
+          "cloudy", "rainy", "rainy", "rainy", "cloudy", "cloudy", "rainy", "cloudy",
+          "cloudy", "cloudy", "night", "rainy", "night", "night", "night", "night",
+        ],
+      },
+      {
+        label: "Tomorrow",
+        date: "Aug 19",
+        temps: [25, 25, 24, 24, 24, 25, 26, 26, 27, 28, 28, 29, 29, 28, 28, 27, 26, 26, 25, 25, 25, 25, 24, 24],
+        rain: [68, 70, 72, 74, 76, 78, 80, 80, 78, 76, 74, 72, 70, 68, 70, 72, 68, 64, 62, 60, 58, 56, 54, 52],
+        wind: [14, 14, 15, 15, 16, 16, 17, 18, 18, 18, 17, 17, 16, 16, 15, 15, 14, 14, 13, 13, 12, 12, 12, 12],
+        icons: [
+          "night", "rainy", "night", "night", "night", "rainy", "rainy", "rainy",
+          "rainy", "rainy", "rainy", "rainy", "rainy", "cloudy", "rainy", "rainy",
+          "cloudy", "rainy", "night", "rainy", "night", "night", "night", "night",
+        ],
+      },
+      {
+        label: "Thu",
+        date: "Aug 20",
+        temps: [24, 24, 24, 23, 23, 24, 25, 26, 27, 27, 28, 28, 28, 27, 27, 26, 26, 25, 25, 25, 24, 24, 24, 24],
+        rain: [78, 80, 82, 84, 86, 86, 84, 82, 80, 78, 76, 74, 76, 80, 82, 78, 74, 70, 68, 66, 64, 62, 60, 58],
+        wind: [16, 16, 17, 18, 19, 20, 21, 21, 21, 20, 20, 19, 19, 18, 18, 17, 16, 16, 15, 15, 14, 14, 14, 14],
+        icons: [
+          "night", "rainy", "night", "night", "night", "rainy", "rainy", "rainy",
+          "rainy", "rainy", "rainy", "rainy", "rainy", "rainy", "rainy", "cloudy",
+          "rainy", "cloudy", "night", "rainy", "night", "night", "night", "night",
+        ],
+      },
+    ],
+  },
+};
 
-// Generate realistic hourly data with patterns
-function generateHours(
-  baseTemp: number,
-  variation: number,
-  baseRain: number,
-  baseWind: number,
-  pattern: "clear" | "cloudy" | "rainy" | "night-clear" | "mixed",
-  startHour: number,
-  sunriseHour: number,
-  sunsetHour: number,
-  isToday: boolean,
-): HourlyEntry[] {
-  const hours: HourlyEntry[] = [];
-
-  for (let i = 0; i < 24; i++) {
-    const h = (startHour + i) % 24;
-
-    // Temperature curve: peaks around 2-3 PM, lowest at 5-6 AM
-    const peakOffset = Math.abs(h - 14); // distance from 2PM
-    const tempCurve = 1 - (peakOffset / 14) * 0.6;
-    const temp = Math.round(baseTemp + variation * tempCurve + (Math.random() * 2 - 1));
-
-    // Rain varies through day
-    let rain = baseRain;
-    if (pattern === "rainy") {
-      rain = Math.min(100, Math.round(baseRain + Math.sin((h / 24) * Math.PI * 2) * 25 + Math.random() * 15));
-    } else if (pattern === "mixed") {
-      rain = Math.round(Math.max(0, baseRain + (h > 12 && h < 18 ? 30 : -10) + Math.random() * 10));
-    } else {
-      rain = Math.max(0, Math.round(baseRain + (Math.random() * 10 - 5)));
-    }
-
-    // Wind varies slightly
-    const wind = Math.max(2, Math.round(baseWind + Math.sin((h / 12) * Math.PI) * 5 + Math.random() * 3 - 1.5));
-
-    // Icon based on time and pattern
-    let icon: string;
-    const isNightHour = h < sunriseHour || h >= sunsetHour;
-
-    if (isNightHour) {
-      icon = rain > 50 ? "rainy" : "night";
-    } else {
-      switch (pattern) {
-        case "clear":
-        case "night-clear":
-          icon = rain > 40 ? "partly-cloudy" : "sunny";
-          break;
-        case "cloudy":
-          icon = rain > 50 ? "rainy" : (h > 10 && h < 16) ? "partly-cloudy" : "cloudy";
-          break;
-        case "rainy":
-          icon = rain > 40 ? "rainy" : "cloudy";
-          break;
-        case "mixed":
-          icon = h < 12 ? "sunny" : h < 15 ? "partly-cloudy" : h < 18 ? "rainy" : "cloudy";
-          break;
-        default:
-          icon = "sunny";
-      }
-    }
-
-    // Determine marker
-    let marker: HourlyEntry["marker"] = undefined;
-    if (i === 0 && isToday) marker = "now";
-
-    hours.push({
-      time: i === 0 && isToday ? "Now" : formatHour(h),
-      hour: h,
-      temp,
-      icon,
-      rainChance: Math.max(0, Math.min(100, rain)),
-      windSpeed: wind,
-      marker,
-    });
-  }
-
-  // Insert sunrise/sunset markers
-  const sunriseIdx = hours.findIndex(entry => entry.hour === sunriseHour);
-  const sunsetIdx = hours.findIndex(entry => entry.hour === sunsetHour);
-  if (sunriseIdx >= 0 && !hours[sunriseIdx].marker) hours[sunriseIdx].marker = "sunrise";
-  if (sunsetIdx >= 0 && !hours[sunsetIdx].marker) hours[sunsetIdx].marker = "sunset";
-
-  return hours;
-}
-
-// Full hourly data for each city, 3 days
 export function getHourlyForecast(city: string): DayForecast[] {
-  const dayNames = getDayNames();
-  const dateStrings = getDateStrings();
+  const config = cityHourly[city] || cityHourly.Kolkata;
+  const currentHour = 13;
 
-  const now = new Date();
-  const currentHour = now.getHours();
+  return config.days.map((day, dayIndex) => {
+    const hours: HourlyEntry[] = day.temps.map((temp, h) => {
+      const marker: HourlyEntry["marker"] =
+        dayIndex === 0 && h === currentHour
+          ? "now"
+          : h === config.sunrise
+            ? "sunrise"
+            : h === config.sunset
+              ? "sunset"
+              : undefined;
 
-  const cityConfigs: Record<string, {
-    baseTemp: number;
-    variation: number;
-    baseRain: number;
-    baseWind: number;
-    patterns: ["clear" | "cloudy" | "rainy" | "night-clear" | "mixed", "clear" | "cloudy" | "rainy" | "night-clear" | "mixed", "clear" | "cloudy" | "rainy" | "night-clear" | "mixed"];
-    sunrise: number;
-    sunset: number;
-  }> = {
-    "New Delhi": {
-      baseTemp: 35, variation: 8, baseRain: 8, baseWind: 14,
-      patterns: ["clear", "clear", "mixed"],
-      sunrise: 6, sunset: 18,
-    },
-    "London": {
-      baseTemp: 12, variation: 5, baseRain: 55, baseWind: 22,
-      patterns: ["cloudy", "rainy", "cloudy"],
-      sunrise: 7, sunset: 17,
-    },
-    "Tokyo": {
-      baseTemp: 24, variation: 5, baseRain: 25, baseWind: 10,
-      patterns: ["mixed", "clear", "cloudy"],
-      sunrise: 6, sunset: 18,
-    },
-    "New York": {
-      baseTemp: 20, variation: 6, baseRain: 5, baseWind: 8,
-      patterns: ["clear", "clear", "mixed"],
-      sunrise: 6, sunset: 19,
-    },
-    "Sydney": {
-      baseTemp: 16, variation: 5, baseRain: 70, baseWind: 28,
-      patterns: ["rainy", "cloudy", "clear"],
-      sunrise: 6, sunset: 17,
-    },
-    "Dubai": {
-      baseTemp: 6, variation: 6, baseRain: 0, baseWind: 6,
-      patterns: ["night-clear", "clear", "clear"],
-      sunrise: 6, sunset: 18,
-    },
-  };
+      return {
+        time: dayIndex === 0 && h === currentHour ? "Now" : formatHour(h),
+        hour: h,
+        temp,
+        icon: day.icons[h],
+        rainChance: day.rain[h],
+        windSpeed: day.wind[h],
+        marker,
+      };
+    });
 
-  const config = cityConfigs[city] || cityConfigs["New York"];
+    const sliced = dayIndex === 0 ? hours.slice(currentHour).concat(hours.slice(0, currentHour)) : hours;
 
-  const sunriseStr = `${config.sunrise}:${Math.floor(Math.random() * 30 + 10)} AM`;
-  const sunsetStr = `${config.sunset - 12}:${Math.floor(Math.random() * 30 + 20)} PM`;
-
-  return dayNames.map((dayLabel, dayIndex) => ({
-    label: dayLabel,
-    date: dateStrings[dayIndex],
-    sunrise: sunriseStr,
-    sunset: sunsetStr,
-    hours: generateHours(
-      config.baseTemp + (dayIndex === 1 ? 1 : dayIndex === 2 ? -1 : 0),
-      config.variation,
-      config.baseRain + (dayIndex * 5),
-      config.baseWind,
-      config.patterns[dayIndex],
-      dayIndex === 0 ? currentHour : 0,
-      config.sunrise,
-      config.sunset,
-      dayIndex === 0,
-    ),
-  }));
+    return {
+      label: day.label,
+      date: day.date,
+      sunrise: config.sunriseLabel,
+      sunset: config.sunsetLabel,
+      hours: sliced,
+    };
+  });
 }

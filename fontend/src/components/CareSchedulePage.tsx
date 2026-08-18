@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
+  type AppTheme,
   type WeatherTheme,
   themeTextColors,
-  themeGradients,
   citiesWeather,
 } from "@/data/weatherData";
+import { Atmosphere } from "./Atmosphere";
+import { PlantPhoto } from "./PlantPhoto";
 import { getEnvironment } from "@/data/plantData";
 import { type MyPlant, generateTasks, type PlantTask } from "@/data/myPlantsData";
 import {
@@ -21,6 +23,7 @@ import {
 
 interface CareSchedulePageProps {
   theme: WeatherTheme;
+  appTheme: AppTheme; // kept so parent can stay consistent with other overlays
   city: string;
   myPlants: MyPlant[];
   isOpen: boolean;
@@ -38,7 +41,7 @@ function ContextStrip({
   city: string;
 }) {
   const colors = themeTextColors[theme];
-  const cityData = citiesWeather[city] || citiesWeather["New York"];
+  const cityData = citiesWeather[city] || citiesWeather.Kolkata;
   const todayCtx = getTodayContext();
 
   const aqiColor =
@@ -174,7 +177,7 @@ function ScheduleTaskCard({
           </button>
         )}
         {/* Plant emoji */}
-        <span className="text-xl">{task.plantImage}</span>
+        <PlantPhoto src={task.plantImage} alt={task.plantName} size="sm" />
       </div>
     </div>
   );
@@ -284,7 +287,7 @@ function WeeklyCalendar({
                 <span className={`text-xs font-light ${task.done ? `${colors.muted} line-through` : colors.secondary}`}>
                   {task.title}
                 </span>
-                <span className="text-xs ml-auto">{task.plantImage}</span>
+                <PlantPhoto src={task.plantImage} alt={task.plantName} size="xs" className="ml-auto" />
               </div>
             ))}
           </div>
@@ -330,9 +333,7 @@ function PlantBreakdown({
           >
             <div className="flex items-start gap-3.5">
               {/* Plant avatar */}
-              <div className="w-11 h-11 rounded-xl bg-white/8 flex items-center justify-center text-2xl flex-shrink-0 border border-white/5">
-                {sched.plantImage}
-              </div>
+              <PlantPhoto src={sched.plantImage} alt={sched.plantName} size="sm" />
 
               <div className="flex-1 min-w-0">
                 {/* Name + badge */}
@@ -450,7 +451,7 @@ function MissedCareCard({
             className="bg-red-500/8 backdrop-blur-md rounded-xl p-4 border border-red-500/15"
           >
             <div className="flex items-center gap-3">
-              <span className="text-2xl">{m.plantImage}</span>
+              <PlantPhoto src={m.plantImage} alt={m.plantName} size="md" />
               <div className="flex-1 min-w-0">
                 <span className={`text-sm font-medium ${colors.primary}`}>
                   {m.plantName}
@@ -675,6 +676,7 @@ function EmptyState({ theme }: { theme: WeatherTheme }) {
 // ========== Main CareSchedulePage ==========
 export function CareSchedulePage({
   theme,
+  appTheme: _appTheme,
   city,
   myPlants,
   isOpen,
@@ -686,9 +688,8 @@ export function CareSchedulePage({
   const [selectedCalendarDay, setSelectedCalendarDay] = useState(-1); // -1 = no selection, auto today
 
   const colors = themeTextColors[theme];
-  const gradient = themeGradients[theme];
 
-  const cityData = citiesWeather[city] || citiesWeather["New York"];
+  const cityData = citiesWeather[city] || citiesWeather.Kolkata;
   const env = useMemo(() => getEnvironment(cityData), [cityData]);
 
   // Generate tasks for today
@@ -751,14 +752,15 @@ export function CareSchedulePage({
 
   return (
     <div
-      className={`fixed inset-0 z-[200] bg-gradient-to-b ${gradient} flex flex-col`}
+      className="fixed inset-0 z-[200] flex flex-col"
       style={{
         animation: isClosing
           ? "pageSlideOut 0.2s ease-in forwards"
           : "pageSlideIn 0.3s ease-out",
       }}
     >
-      {/* ===== Sticky Header ===== */}
+      <Atmosphere theme={theme} appTheme="dark" />
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
       <div className="sticky top-0 z-20 backdrop-blur-xl bg-black/5">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 px-4 pt-4 pb-3">
@@ -856,6 +858,7 @@ export function CareSchedulePage({
             </>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

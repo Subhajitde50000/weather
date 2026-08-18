@@ -1,13 +1,15 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
+  CITIES,
   citiesWeather,
   getTheme,
-  getGradient,
+  resolveCity,
   type AppTheme,
   type WindUnit,
 } from "@/data/weatherData";
-import { plantDatabase } from "@/data/plantData";
+import { plantDatabase, type Plant } from "@/data/plantData";
 import { getDefaultMyPlants, type MyPlant } from "@/data/myPlantsData";
+import { Atmosphere } from "@/components/Atmosphere";
 import { Header } from "@/components/Header";
 import { HeroTemperature } from "@/components/HeroTemperature";
 import { InfoStrip } from "@/components/InfoStrip";
@@ -16,6 +18,7 @@ import { DetailCards } from "@/components/DetailCards";
 import { AirQuality } from "@/components/AirQuality";
 import { DailyPreview } from "@/components/DailyPreview";
 import { PlantPreview } from "@/components/PlantPreview";
+import { GasMixCard } from "@/components/GasMix";
 import { CitySearchPage } from "@/components/CitySearchPage";
 import { SettingsPage } from "@/components/SettingsPage";
 import { HourlyForecastPage } from "@/components/HourlyForecastPage";
@@ -25,28 +28,15 @@ import { MyPlantsDashboard } from "@/components/MyPlantsDashboard";
 import { CareSchedulePage } from "@/components/CareSchedulePage";
 import DailyForecastPage from "@/components/DailyForecastPage";
 import WeatherMapPage from "@/components/WeatherMapPage";
+import { getUi } from "@/data/weatherData";
+import { PlantPhoto } from "@/components/PlantPhoto";
 
 function toF(c: number): number {
   return Math.round((c * 9) / 5 + 32);
 }
 
-// Cities that have weather data (our supported cities)
-const SUPPORTED_CITIES = Object.keys(citiesWeather);
-
-// Find the closest supported city for display
-function findSupportedCity(cityName: string): string {
-  // Exact match
-  if (citiesWeather[cityName]) return cityName;
-  // Case-insensitive match
-  const lower = cityName.toLowerCase();
-  const found = SUPPORTED_CITIES.find((c) => c.toLowerCase() === lower);
-  if (found) return found;
-  // Default
-  return "New York";
-}
-
 export function App() {
-  const [currentCity, setCurrentCity] = useState("New York");
+  const [currentCity, setCurrentCity] = useState("Kolkata");
   const [unit, setUnit] = useState<"C" | "F">("C");
   const [windUnit, setWindUnit] = useState<WindUnit>("kmh");
   const [appTheme, setAppTheme] = useState<AppTheme>("dark");
@@ -60,37 +50,22 @@ export function App() {
   const [myPlantsOpen, setMyPlantsOpen] = useState(false);
   const [careScheduleOpen, setCareScheduleOpen] = useState(false);
   const [animKey, setAnimKey] = useState(0);
-  const [recentCities, setRecentCities] = useState<string[]>([
-    "London",
-    "Tokyo",
-    "Dubai",
-  ]);
-  const [savedCities, setSavedCities] = useState<string[]>([
-    "New York",
-    "New Delhi",
-    "Sydney",
-  ]);
-
-  // My Plants state
+  const [recentCities, setRecentCities] = useState<string[]>(["Delhi", "Kharagpur"]);
+  const [savedCities, setSavedCities] = useState<string[]>(["Kolkata", "Delhi"]);
   const [myPlants, setMyPlants] = useState<MyPlant[]>(getDefaultMyPlants);
 
-  const supportedCity = findSupportedCity(currentCity);
+  const supportedCity = resolveCity(currentCity);
   const data = citiesWeather[supportedCity];
   const weatherTheme = getTheme(data);
-  const gradient = getGradient(weatherTheme, appTheme);
+  const ui = getUi(appTheme);
 
-  const t = useCallback(
-    (celsius: number) => (unit === "F" ? toF(celsius) : celsius),
-    [unit]
-  );
+  const t = useCallback((celsius: number) => (unit === "F" ? toF(celsius) : celsius), [unit]);
 
   const handleCitySelect = useCallback((city: string) => {
-    const resolved = findSupportedCity(city);
+    const resolved = resolveCity(city);
     setCurrentCity(resolved);
     setSearchOpen(false);
     setAnimKey((k) => k + 1);
-
-    // Add to recent (at front, deduplicated, max 5)
     setRecentCities((prev) => {
       const filtered = prev.filter((c) => c !== resolved);
       return [resolved, ...filtered].slice(0, 5);
@@ -98,44 +73,57 @@ export function App() {
   }, []);
 
   const handleToggleSave = useCallback((city: string) => {
-    setSavedCities((prev) => {
-      if (prev.includes(city)) {
-        return prev.filter((c) => c !== city);
-      }
-      return [...prev, city];
-    });
+    setSavedCities((prev) => (prev.includes(city) ? prev.filter((c) => c !== city) : [...prev, city]));
   }, []);
 
   const handleRemoveRecent = useCallback((city: string) => {
     setRecentCities((prev) => prev.filter((c) => c !== city));
   }, []);
 
-  // ========== My Plants Handlers ==========
-  const handleAddPlant = useCallback(() => {
-    // Add a random plant from the database that isn't already in myPlants
+  const addSpecificPlant = useCallback((plant: Plant) => {
     setMyPlants((prev) => {
-      const existingIds = new Set(prev.map((p) => p.plantId));
-      const available = plantDatabase.filter((p) => !existingIds.has(p.id));
-      if (available.length === 0) return prev;
-
-      const randomPlant = available[Math.floor(Math.random() * available.length)];
+      if (prev.some((p) => p.plantId === plant.id)) return prev;
       const now = new Date();
       const daysAgo = (d: number) => {
         const date = new Date(now);
         date.setDate(date.getDate() - d);
         return date.toISOString();
       };
-
       const newMyPlant: MyPlant = {
-        plantId: randomPlant.id,
-        plant: randomPlant,
+        plantId: plant.id,
+        plant,
         addedDate: now.toISOString(),
-        lastWatered: daysAgo(Math.floor(Math.random() * 5)),
-        lastRotated: daysAgo(Math.floor(Math.random() * 10)),
-        location: randomPlant.spaceType.includes("indoor") ? "indoor" : "balcony",
+        lastWatered: daysAgo(1),
+        lastRotated: daysAgo(4),
+        location: plant.spaceType.includes("indoor") ? "indoor" : "balcony",
       };
-
       return [...prev, newMyPlant];
+    });
+  }, []);
+
+  const handleAddPlant = useCallback(() => {
+    setMyPlants((prev) => {
+      const existingIds = new Set(prev.map((p) => p.plantId));
+      const available = plantDatabase.filter((p) => !existingIds.has(p.id));
+      if (available.length === 0) return prev;
+      const next = available[0];
+      const now = new Date();
+      const daysAgo = (d: number) => {
+        const date = new Date(now);
+        date.setDate(date.getDate() - d);
+        return date.toISOString();
+      };
+      return [
+        ...prev,
+        {
+          plantId: next.id,
+          plant: next,
+          addedDate: now.toISOString(),
+          lastWatered: daysAgo(1),
+          lastRotated: daysAgo(3),
+          location: next.spaceType.includes("indoor") ? "indoor" : "balcony",
+        },
+      ];
     });
   }, []);
 
@@ -145,29 +133,21 @@ export function App() {
 
   const handleWaterPlant = useCallback((plantId: string) => {
     setMyPlants((prev) =>
-      prev.map((p) =>
-        p.plantId === plantId
-          ? { ...p, lastWatered: new Date().toISOString() }
-          : p
-      )
+      prev.map((p) => (p.plantId === plantId ? { ...p, lastWatered: new Date().toISOString() } : p)),
     );
   }, []);
 
   const handleRotatePlant = useCallback((plantId: string) => {
     setMyPlants((prev) =>
-      prev.map((p) =>
-        p.plantId === plantId
-          ? { ...p, lastRotated: new Date().toISOString() }
-          : p
-      )
+      prev.map((p) => (p.plantId === plantId ? { ...p, lastRotated: new Date().toISOString() } : p)),
     );
   }, []);
 
   return (
-    <div
-      className={`min-h-screen bg-gradient-to-b ${gradient} transition-all duration-700 ease-in-out`}
-    >
-      <div className="max-w-lg mx-auto pb-12">
+    <div className="relative min-h-screen overflow-x-hidden">
+      <Atmosphere theme={weatherTheme} appTheme={appTheme} />
+
+      <div className="relative z-10">
         <Header
           city={data.city}
           country={data.country}
@@ -178,145 +158,139 @@ export function App() {
           onSettingsClick={() => setSettingsOpen(true)}
         />
 
-        <div key={animKey}>
-          <div className="weather-section">
-            <HeroTemperature
-              temp={t(data.temp)}
-              feelsLike={t(data.feelsLike)}
-              condition={data.condition}
-              conditionIcon={data.conditionIcon}
-              theme={weatherTheme}
-              appTheme={appTheme}
-            />
+        <div className="mx-auto max-w-[1400px] px-4 pb-16 lg:px-8">
+          <div className="mb-6 flex flex-wrap gap-2">
+            {CITIES.map((city) => {
+              const active = city === supportedCity;
+              return (
+                <button
+                  key={city}
+                  onClick={() => handleCitySelect(city)}
+                  className={`rounded-full px-4 py-1.5 text-sm transition-all ${
+                    active
+                      ? "bg-[#3dd68c] text-[#062016] shadow-[0_8px_24px_rgba(61,214,140,0.28)]"
+                      : `${ui.card} ${ui.muted} hover:text-inherit`
+                  }`}
+                >
+                  {city}
+                </button>
+              );
+            })}
           </div>
 
-          <div className="weather-section">
-            <InfoStrip
-              high={t(data.high)}
-              low={t(data.low)}
-              rainChance={data.rainChance}
-              windSpeed={data.windSpeed}
-              windUnit={windUnit}
-              theme={weatherTheme}
-              appTheme={appTheme}
-            />
-          </div>
+          <div key={animKey} className="grid items-start gap-6 lg:grid-cols-12 lg:gap-10">
+            <aside className="weather-section lg:sticky lg:top-24 lg:col-span-5">
+              <HeroTemperature
+                temp={t(data.temp)}
+                feelsLike={t(data.feelsLike)}
+                condition={data.condition}
+                conditionIcon={data.conditionIcon}
+                theme={weatherTheme}
+                appTheme={appTheme}
+              />
+              <p className={`mt-3 text-center text-xs lg:text-left ${ui.muted}`}>
+                {data.state}, India · Tue 18 Aug 2026 · 1:10 PM
+              </p>
+              <InfoStrip
+                high={t(data.high)}
+                low={t(data.low)}
+                rainChance={data.rainChance}
+                windSpeed={data.windSpeed}
+                windUnit={windUnit}
+                theme={weatherTheme}
+                appTheme={appTheme}
+              />
+            </aside>
 
-          <div className="weather-section">
-            <HourlyForecast
-              hourly={data.hourly.map((h) => ({
-                ...h,
-                temp: t(h.temp),
-              }))}
-              theme={weatherTheme}
-              appTheme={appTheme}
-              onTap={() => setHourlyOpen(true)}
-            />
-          </div>
+            <main className="flex flex-col gap-4 lg:col-span-7">
+              <div className="weather-section">
+                <HourlyForecast
+                  hourly={data.hourly.map((h) => ({ ...h, temp: t(h.temp) }))}
+                  theme={weatherTheme}
+                  appTheme={appTheme}
+                  onTap={() => setHourlyOpen(true)}
+                />
+              </div>
 
-          <div className="weather-section">
-            <DailyPreview
-              cityName={supportedCity}
-              unit={unit}
-              theme={weatherTheme}
-              appTheme={appTheme}
-              onTap={() => setDailyOpen(true)}
-            />
-          </div>
+              <div className="weather-section">
+                <DailyPreview
+                  cityName={supportedCity}
+                  unit={unit}
+                  theme={weatherTheme}
+                  appTheme={appTheme}
+                  onTap={() => setDailyOpen(true)}
+                />
+              </div>
 
-          <div className="weather-section">
-            <DetailCards
-              humidity={data.humidity}
-              uvIndex={data.uvIndex}
-              visibility={data.visibility}
-              pressure={data.pressure}
-              theme={weatherTheme}
-              appTheme={appTheme}
-            />
-          </div>
+              <div className="weather-section">
+                <DetailCards
+                  humidity={data.humidity}
+                  uvIndex={data.uvIndex}
+                  visibility={data.visibility}
+                  pressure={data.pressure}
+                  theme={weatherTheme}
+                  appTheme={appTheme}
+                />
+              </div>
 
-          <div className="weather-section">
-            <AirQuality
-              aqi={data.aqi}
-              status={data.aqiStatus}
-              theme={weatherTheme}
-              appTheme={appTheme}
-              onTap={() => setAqiOpen(true)}
-            />
-          </div>
+              <div className="weather-section grid gap-4 md:grid-cols-2">
+                <AirQuality
+                  aqi={data.aqi}
+                  status={data.aqiStatus}
+                  theme={weatherTheme}
+                  appTheme={appTheme}
+                  onTap={() => setAqiOpen(true)}
+                />
+                <GasMixCard gases={data.gases} appTheme={appTheme} onTap={() => setAqiOpen(true)} />
+              </div>
 
-          <div className="weather-section">
-            <PlantPreview
-              city={supportedCity}
-              theme={weatherTheme}
-              appTheme={appTheme}
-              onTap={() => setPlantOpen(true)}
-            />
-          </div>
+              <div className="weather-section">
+                <PlantPreview
+                  city={supportedCity}
+                  theme={weatherTheme}
+                  appTheme={appTheme}
+                  onTap={() => setPlantOpen(true)}
+                />
+              </div>
 
-          {/* My Plants Preview Card */}
-          <div className="weather-section">
-            <div className="px-4 py-3">
-              <button
-                onClick={() => setMyPlantsOpen(true)}
-                className={`w-full text-left ${appTheme === "light" ? "bg-white/60 backdrop-blur-md shadow-sm shadow-black/5" : "bg-white/15 backdrop-blur-md"} rounded-2xl p-4 cursor-pointer active:scale-[0.99] transition-transform`}
-              >
-                <div className="flex items-center justify-between mb-3 px-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">🪴</span>
-                    <span className={`text-xs font-light ${appTheme === "light" ? "text-gray-500" : "text-white/60"} uppercase tracking-widest`}>
-                      My Plants
+              <div className="weather-section">
+                <button
+                  onClick={() => setMyPlantsOpen(true)}
+                  className={`w-full text-left ${ui.card} rounded-[1.6rem] p-4 transition-transform active:scale-[0.99]`}
+                >
+                  <div className="mb-3 flex items-center justify-between px-1">
+                    <span className={`text-[11px] uppercase tracking-[0.22em] ${ui.faint}`}>My garden</span>
+                    <span className={`flex items-center gap-1 text-xs ${ui.muted}`}>
+                      {myPlants.length} plant{myPlants.length !== 1 ? "s" : ""}
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M9 18l6-6-6-6" />
+                      </svg>
                     </span>
                   </div>
-                  <span className={`text-xs font-light ${appTheme === "light" ? "text-gray-500" : "text-white/60"} flex items-center gap-1`}>
-                    {myPlants.length} plant{myPlants.length !== 1 ? "s" : ""}
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                      <path d="M9 18l6-6-6-6" />
-                    </svg>
-                  </span>
-                </div>
-
-                {myPlants.length > 0 ? (
-                  <div className="flex items-center gap-3">
-                    {myPlants.slice(0, 4).map((mp) => (
-                      <div
-                        key={mp.plantId}
-                        className={`flex flex-col items-center gap-1.5 py-2.5 px-3 rounded-xl flex-1 ${
-                          appTheme === "light" ? "bg-black/3" : "bg-white/5"
-                        }`}
-                      >
-                        <span className="text-2xl">{mp.plant.image}</span>
-                        <span className={`text-[10px] font-light ${appTheme === "light" ? "text-gray-700" : "text-white"} text-center leading-tight truncate w-full`}>
-                          {mp.nickname || mp.plant.name}
-                        </span>
-                      </div>
-                    ))}
-                    {myPlants.length > 4 && (
-                      <div className={`flex flex-col items-center gap-1.5 py-2.5 px-3 rounded-xl ${
-                        appTheme === "light" ? "bg-black/3" : "bg-white/5"
-                      }`}>
-                        <span className={`text-lg ${appTheme === "light" ? "text-gray-400" : "text-white/40"}`}>
-                          +{myPlants.length - 4}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center py-4">
-                    <span className={`text-xs font-light ${appTheme === "light" ? "text-gray-400" : "text-white/40"}`}>
-                      Tap to add your first plant
-                    </span>
-                  </div>
-                )}
-              </button>
-            </div>
+                  {myPlants.length > 0 ? (
+                    <div className="flex items-center gap-3">
+                      {myPlants.slice(0, 4).map((mp) => (
+                        <div key={mp.plantId} className={`flex flex-1 flex-col items-center gap-1.5 rounded-2xl px-3 py-2.5 ${ui.chip}`}>
+                          <PlantPhoto src={mp.plant.image} alt={mp.nickname || mp.plant.name} size="md" />
+                          <span className={`w-full truncate text-center text-[10px] ${ui.text}`}>
+                            {mp.nickname || mp.plant.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className={`py-4 text-center text-xs ${ui.faint}`}>Tap to add your first plant</p>
+                  )}
+                </button>
+              </div>
+            </main>
           </div>
         </div>
       </div>
 
-      {/* City Search Page - full page overlay */}
       <CitySearchPage
         theme={weatherTheme}
+        appTheme={appTheme}
         currentCity={supportedCity}
         recentCities={recentCities}
         savedCities={savedCities}
@@ -327,44 +301,45 @@ export function App() {
         onRemoveRecent={handleRemoveRecent}
       />
 
-      {/* Hourly Forecast Page - full page overlay */}
       <HourlyForecastPage
         theme={weatherTheme}
+        appTheme={appTheme}
         city={supportedCity}
         unit={unit}
         isOpen={hourlyOpen}
         onClose={() => setHourlyOpen(false)}
       />
 
-      {/* Daily Forecast Page - full page overlay */}
       {dailyOpen && (
         <DailyForecastPage
           cityName={supportedCity}
           unit={unit}
           theme={weatherTheme}
+          appTheme={appTheme}
           onClose={() => setDailyOpen(false)}
         />
       )}
 
-      {/* Air Quality Page - full page overlay */}
       <AirQualityPage
         theme={weatherTheme}
+        appTheme={appTheme}
         city={supportedCity}
         isOpen={aqiOpen}
         onClose={() => setAqiOpen(false)}
       />
 
-      {/* Plant Recommendation Page - full page overlay */}
       <PlantRecommendationPage
         theme={weatherTheme}
+        appTheme={appTheme}
         city={supportedCity}
         isOpen={plantOpen}
         onClose={() => setPlantOpen(false)}
+        onAddPlant={addSpecificPlant}
       />
 
-      {/* My Plants Dashboard - full page overlay */}
       <MyPlantsDashboard
         theme={weatherTheme}
+        appTheme={appTheme}
         city={supportedCity}
         myPlants={myPlants}
         isOpen={myPlantsOpen}
@@ -383,9 +358,9 @@ export function App() {
         onRotatePlant={handleRotatePlant}
       />
 
-      {/* Care Schedule Page - full page overlay */}
       <CareSchedulePage
         theme={weatherTheme}
+        appTheme={appTheme}
         city={supportedCity}
         myPlants={myPlants}
         isOpen={careScheduleOpen}
@@ -394,15 +369,8 @@ export function App() {
         onRotatePlant={handleRotatePlant}
       />
 
-      {/* Weather Map Page - full page overlay */}
-      {mapOpen && (
-        <WeatherMapPage
-          city={supportedCity}
-          onBack={() => setMapOpen(false)}
-        />
-      )}
+      {mapOpen && <WeatherMapPage city={supportedCity} onBack={() => setMapOpen(false)} />}
 
-      {/* Settings Page - full page overlay */}
       <SettingsPage
         weatherTheme={weatherTheme}
         appTheme={appTheme}

@@ -1,15 +1,17 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
+  type AppTheme,
   type WeatherTheme,
   themeTextColors,
-  themeGradients,
-  themeCardBg,
+  getUi,
 } from "@/data/weatherData";
 import { getHourlyForecast, type DayForecast, type HourlyEntry } from "@/data/hourlyData";
 import { WeatherIcon } from "./WeatherIcon";
+import { Atmosphere } from "./Atmosphere";
 
 interface HourlyForecastPageProps {
   theme: WeatherTheme;
+  appTheme: AppTheme;
   city: string;
   unit: "C" | "F";
   isOpen: boolean;
@@ -371,6 +373,7 @@ function HourRow({
 // ---------- Main Page Component ----------
 export function HourlyForecastPage({
   theme,
+  appTheme,
   city,
   unit,
   isOpen,
@@ -381,8 +384,8 @@ export function HourlyForecastPage({
   const [forecast, setForecast] = useState<DayForecast[]>([]);
 
   const colors = themeTextColors[theme];
-  const gradient = themeGradients[theme];
-  const cardBg = themeCardBg[theme];
+  const ui = getUi(appTheme);
+  const cardBg = ui.card;
 
   // Load forecast data
   useEffect(() => {
@@ -423,15 +426,16 @@ export function HourlyForecastPage({
 
   return (
     <div
-      className={`fixed inset-0 z-[200] bg-gradient-to-b ${gradient} flex flex-col`}
+      className="fixed inset-0 z-[200] flex flex-col"
       style={{
         animation: isClosing
           ? "pageSlideOut 0.2s ease-in forwards"
           : "pageSlideIn 0.3s ease-out",
       }}
     >
-      {/* ========== Sticky Header ========== */}
-      <div className="sticky top-0 z-20 backdrop-blur-xl bg-black/5">
+      <Atmosphere theme={theme} appTheme="dark" />
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+      <div className={`sticky top-0 z-20 backdrop-blur-xl ${ui.light ? "bg-white/30" : "bg-[#071410]/40"}`}>
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 px-4 pt-4 pb-2">
             <button
@@ -580,6 +584,7 @@ export function HourlyForecastPage({
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

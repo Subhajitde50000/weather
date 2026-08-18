@@ -1,5 +1,11 @@
-import { type WeatherTheme, type WindUnit, convertWind, windUnitLabel } from "@/data/weatherData";
-import { getTextColors, type AppTheme } from "@/data/weatherData";
+import {
+  type AppTheme,
+  type WeatherTheme,
+  type WindUnit,
+  convertWind,
+  getUi,
+  windUnitLabel,
+} from "@/data/weatherData";
 
 interface InfoStripProps {
   high: number;
@@ -11,24 +17,32 @@ interface InfoStripProps {
   appTheme: AppTheme;
 }
 
-export function InfoStrip({ high, low, rainChance, windSpeed, windUnit, theme, appTheme }: InfoStripProps) {
-  const colors = getTextColors(theme, appTheme);
-
+export function InfoStrip({
+  high,
+  low,
+  rainChance,
+  windSpeed,
+  windUnit,
+  theme: _theme,
+  appTheme,
+}: InfoStripProps) {
+  const ui = getUi(appTheme);
+  void _theme;
   const displayWind = convertWind(windSpeed, windUnit);
 
   const items = [
-    { icon: "🌡️", label: `H: ${high}°` },
-    { icon: "❄️", label: `L: ${low}°` },
-    { icon: "☔", label: `${rainChance}%` },
-    { icon: "🌬️", label: `${displayWind} ${windUnitLabel(windUnit)}` },
+    { label: "High", value: `${high}°` },
+    { label: "Low", value: `${low}°` },
+    { label: "Rain", value: `${rainChance}%` },
+    { label: "Wind", value: `${displayWind} ${windUnitLabel(windUnit)}` },
   ];
 
   return (
-    <div className="flex items-center justify-center gap-6 py-4 px-4">
-      {items.map((item, i) => (
-        <div key={i} className={`flex items-center gap-1.5 ${colors.muted} text-sm font-light`}>
-          <span className="text-xs opacity-80">{item.icon}</span>
-          <span>{item.label}</span>
+    <div className={`mt-5 grid grid-cols-4 gap-2 ${ui.card} rounded-[1.4rem] p-3`}>
+      {items.map((item) => (
+        <div key={item.label} className="flex flex-col items-center gap-1 py-1">
+          <span className={`text-[10px] uppercase tracking-[0.16em] ${ui.faint}`}>{item.label}</span>
+          <span className={`text-sm font-medium ${ui.text}`}>{item.value}</span>
         </div>
       ))}
     </div>

@@ -1,17 +1,21 @@
 import { useState, useEffect, useCallback } from "react";
 import {
+  type AppTheme,
   type WeatherTheme,
   themeTextColors,
-  themeGradients,
 } from "@/data/weatherData";
-import { type PlantRecommendation, type EnvironmentConditions } from "@/data/plantData";
+import { type PlantRecommendation, type EnvironmentConditions, type Plant } from "@/data/plantData";
+import { Atmosphere } from "./Atmosphere";
+import { PlantPhoto } from "./PlantPhoto";
 
 interface PlantDetailPageProps {
   theme: WeatherTheme;
+  appTheme: AppTheme;
   recommendation: PlantRecommendation;
   env: EnvironmentConditions;
   isOpen: boolean;
   onClose: () => void;
+  onAddPlant: (plant: Plant) => void;
 }
 
 function DifficultyMeter({ level }: { level: number }) {
@@ -34,16 +38,17 @@ function DifficultyMeter({ level }: { level: number }) {
 
 export function PlantDetailPage({
   theme,
+  appTheme: _appTheme,
   recommendation,
   env,
   isOpen,
   onClose,
+  onAddPlant,
 }: PlantDetailPageProps) {
   const [isClosing, setIsClosing] = useState(false);
   const [addedToMyPlants, setAddedToMyPlants] = useState(false);
 
   const colors = themeTextColors[theme];
-  const gradient = themeGradients[theme];
   const plant = recommendation.plant;
 
   const handleClose = useCallback(() => {
@@ -74,13 +79,15 @@ export function PlantDetailPage({
 
   return (
     <div
-      className={`fixed inset-0 z-[300] bg-gradient-to-b ${gradient} flex flex-col`}
+      className="fixed inset-0 z-[300] flex flex-col"
       style={{
         animation: isClosing
           ? "pageSlideOut 0.2s ease-in forwards"
           : "pageSlideIn 0.3s ease-out",
       }}
     >
+      <Atmosphere theme={theme} appTheme="dark" />
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
       {/* Sticky Header */}
       <div className="sticky top-0 z-20 backdrop-blur-xl bg-black/5">
         <div className="max-w-lg mx-auto">
@@ -117,8 +124,8 @@ export function PlantDetailPage({
             style={{ animation: "plantFadeIn 0.4s ease-out" }}
           >
             {/* Big icon */}
-            <div className="w-28 h-28 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center text-6xl mb-4 border border-white/5">
-              {plant.image}
+            <div className="mb-4">
+              <PlantPhoto src={plant.image} alt={plant.name} size="xl" />
             </div>
 
             {/* Name + badges */}
@@ -469,14 +476,17 @@ export function PlantDetailPage({
         >
           <div className="max-w-lg mx-auto flex gap-3">
             <button
-              onClick={() => setAddedToMyPlants(!addedToMyPlants)}
+              onClick={() => {
+                if (!addedToMyPlants) onAddPlant(plant);
+                setAddedToMyPlants(true);
+              }}
               className={`flex-1 py-3.5 rounded-2xl text-sm font-medium transition-all duration-200 ${
                 addedToMyPlants
                   ? "bg-green-500/20 text-green-300 border border-green-500/30"
                   : "bg-white/15 text-white border border-white/10 hover:bg-white/25 active:bg-white/30"
               }`}
             >
-              {addedToMyPlants ? "✓ Added to My Plants" : "➕ Add to My Plants"}
+              {addedToMyPlants ? "✓ Added to My Garden" : "Add to My Garden"}
             </button>
             <button
               onClick={handleClose}
@@ -486,6 +496,7 @@ export function PlantDetailPage({
             </button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { type WeatherTheme, type AppTheme, getTextColors, getCardBg } from "@/data/weatherData";
+import { type AppTheme, type WeatherTheme, getUi } from "@/data/weatherData";
 import { WeatherIcon } from "./WeatherIcon";
 
 interface HourlyForecastProps {
@@ -8,46 +8,38 @@ interface HourlyForecastProps {
   onTap?: () => void;
 }
 
-export function HourlyForecast({ hourly, theme, appTheme, onTap }: HourlyForecastProps) {
-  const colors = getTextColors(theme, appTheme);
-  const cardBg = getCardBg(theme, appTheme);
+export function HourlyForecast({ hourly, theme: _theme, appTheme, onTap }: HourlyForecastProps) {
+  const ui = getUi(appTheme);
+  void _theme;
 
   return (
-    <div className="px-4 py-3">
-      <div
-        className={`${cardBg} rounded-2xl p-4 ${onTap ? "cursor-pointer active:scale-[0.99] transition-transform" : ""}`}
-        onClick={onTap}
-      >
-        <div className="flex items-center justify-between mb-3 px-1">
-          <span className={`text-xs font-light ${colors.muted} uppercase tracking-widest`}>
-            Hourly
+    <div
+      className={`${ui.card} rounded-[1.6rem] p-4 ${onTap ? "cursor-pointer transition-transform active:scale-[0.99]" : ""}`}
+      onClick={onTap}
+    >
+      <div className="mb-3 flex items-center justify-between px-1">
+        <span className={`text-[11px] uppercase tracking-[0.22em] ${ui.faint}`}>Hourly</span>
+        {onTap && (
+          <span className={`flex items-center gap-1 text-xs ${ui.muted}`}>
+            Next 24h
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </span>
-          {onTap && (
-            <span className={`text-xs font-light ${colors.muted} flex items-center gap-1`}>
-              Details
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </span>
-          )}
-        </div>
-        <div className="flex gap-5 overflow-x-auto scrollbar-hide pb-1" style={{ scrollSnapType: "x mandatory" }}>
-          {hourly.map((hour, i) => (
-            <div
-              key={i}
-              className="flex flex-col items-center gap-2 min-w-[56px] flex-shrink-0"
-              style={{ scrollSnapAlign: "start" }}
-            >
-              <span className={`text-xs font-light ${i === 0 ? colors.primary : colors.muted}`}>
-                {hour.time}
-              </span>
-              <WeatherIcon type={hour.icon} size="sm" />
-              <span className={`text-sm font-light ${colors.primary}`}>
-                {hour.temp}°
-              </span>
-            </div>
-          ))}
-        </div>
+        )}
+      </div>
+      <div className="flex gap-4 overflow-x-auto pb-1 scrollbar-hide" style={{ scrollSnapType: "x mandatory" }}>
+        {hourly.map((hour, i) => (
+          <div
+            key={`${hour.time}-${i}`}
+            className="flex min-w-[56px] flex-shrink-0 flex-col items-center gap-2"
+            style={{ scrollSnapAlign: "start" }}
+          >
+            <span className={`text-xs font-light ${i === 0 ? ui.text : ui.muted}`}>{hour.time}</span>
+            <WeatherIcon type={hour.icon} size="sm" />
+            <span className={`text-sm ${ui.text}`}>{hour.temp}°</span>
+          </div>
+        ))}
       </div>
     </div>
   );

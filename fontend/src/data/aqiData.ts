@@ -5,7 +5,17 @@ export interface Pollutant {
   unit: string;
   status: "Good" | "Moderate" | "Unhealthy (Sensitive)" | "Unhealthy" | "Very Unhealthy" | "Hazardous";
   color: string;
-  percent: number; // 0-100 bar fill
+  percent: number;
+}
+
+export interface GasShare {
+  key: "o2" | "co2" | "n2";
+  label: string;
+  formula: string;
+  value: number;
+  unit: string;
+  note: string;
+  color: string;
 }
 
 export interface AqiDetail {
@@ -15,6 +25,7 @@ export interface AqiDetail {
   healthMessage: string;
   targetGroup: string;
   pollutants: Pollutant[];
+  gases: GasShare[];
   trend: "Improving" | "Worsening" | "Stable";
   trendArrow: string;
   lastUpdated: string;
@@ -22,7 +33,6 @@ export interface AqiDetail {
 }
 
 function getPollutantStatus(name: string, value: number): { status: Pollutant["status"]; color: string; percent: number } {
-  // Simplified breakpoints based on US EPA standards
   const breakpoints: Record<string, number[]> = {
     "PM2.5": [12, 35.4, 55.4, 150.4, 250.4, 500],
     "PM10": [54, 154, 254, 354, 424, 604],
@@ -33,22 +43,22 @@ function getPollutantStatus(name: string, value: number): { status: Pollutant["s
   };
 
   const bp = breakpoints[name] || [50, 100, 150, 200, 300, 500];
-  
-  if (value <= bp[0]) return { status: "Good", color: "#22C55E", percent: Math.min((value / bp[0]) * 16.7, 16.7) };
-  if (value <= bp[1]) return { status: "Moderate", color: "#EAB308", percent: 16.7 + ((value - bp[0]) / (bp[1] - bp[0])) * 16.7 };
-  if (value <= bp[2]) return { status: "Unhealthy (Sensitive)", color: "#F97316", percent: 33.4 + ((value - bp[1]) / (bp[2] - bp[1])) * 16.7 };
-  if (value <= bp[3]) return { status: "Unhealthy", color: "#EF4444", percent: 50 + ((value - bp[2]) / (bp[3] - bp[2])) * 16.7 };
-  if (value <= bp[4]) return { status: "Very Unhealthy", color: "#A855F7", percent: 66.7 + ((value - bp[3]) / (bp[4] - bp[3])) * 16.7 };
-  return { status: "Hazardous", color: "#991B1B", percent: Math.min(83.4 + ((value - bp[4]) / (bp[5] - bp[4])) * 16.6, 100) };
+
+  if (value <= bp[0]) return { status: "Good", color: "#3dd68c", percent: Math.min((value / bp[0]) * 16.7, 16.7) };
+  if (value <= bp[1]) return { status: "Moderate", color: "#e3c15a", percent: 16.7 + ((value - bp[0]) / (bp[1] - bp[0])) * 16.7 };
+  if (value <= bp[2]) return { status: "Unhealthy (Sensitive)", color: "#e08a3a", percent: 33.4 + ((value - bp[1]) / (bp[2] - bp[1])) * 16.7 };
+  if (value <= bp[3]) return { status: "Unhealthy", color: "#e25b5b", percent: 50 + ((value - bp[2]) / (bp[3] - bp[2])) * 16.7 };
+  if (value <= bp[4]) return { status: "Very Unhealthy", color: "#b06ad4", percent: 66.7 + ((value - bp[3]) / (bp[4] - bp[3])) * 16.7 };
+  return { status: "Hazardous", color: "#9b2c2c", percent: Math.min(83.4 + ((value - bp[4]) / (bp[5] - bp[4])) * 16.6, 100) };
 }
 
 function getAqiColor(aqi: number): string {
-  if (aqi <= 50) return "#22C55E";
-  if (aqi <= 100) return "#EAB308";
-  if (aqi <= 150) return "#F97316";
-  if (aqi <= 200) return "#EF4444";
-  if (aqi <= 300) return "#A855F7";
-  return "#991B1B";
+  if (aqi <= 50) return "#3dd68c";
+  if (aqi <= 100) return "#e3c15a";
+  if (aqi <= 150) return "#e08a3a";
+  if (aqi <= 200) return "#e25b5b";
+  if (aqi <= 300) return "#b06ad4";
+  return "#9b2c2c";
 }
 
 function getAqiStatus(aqi: number): string {
@@ -62,28 +72,28 @@ function getAqiStatus(aqi: number): string {
 
 function getHealthMessage(aqi: number): { message: string; targetGroup: string } {
   if (aqi <= 50) return {
-    message: "Air quality is satisfactory. Enjoy outdoor activities.",
-    targetGroup: "Everyone"
+    message: "Air quality is satisfactory. Outdoor walks and balcony plants are fine.",
+    targetGroup: "Everyone",
   };
   if (aqi <= 100) return {
-    message: "Unusually sensitive people should consider limiting prolonged outdoor exertion.",
-    targetGroup: "Sensitive individuals"
+    message: "Acceptable air. Sensitive people should ease long outdoor exertion.",
+    targetGroup: "Sensitive individuals",
   };
   if (aqi <= 150) return {
-    message: "Sensitive groups should reduce prolonged or heavy outdoor exertion.",
-    targetGroup: "Children, elderly, and people with respiratory conditions"
+    message: "Sensitive groups should cut heavy outdoor work. Keep indoor plants dusted.",
+    targetGroup: "Children, elderly, and people with respiratory conditions",
   };
   if (aqi <= 200) return {
-    message: "Everyone should reduce prolonged outdoor exertion. Sensitive groups should avoid outdoor activity.",
-    targetGroup: "Everyone, especially sensitive groups"
+    message: "Everyone should reduce outdoor exertion. Move balcony plants inside if leaves look dusty.",
+    targetGroup: "Everyone, especially sensitive groups",
   };
   if (aqi <= 300) return {
-    message: "Health alert: everyone may experience serious health effects. Avoid outdoor activity.",
-    targetGroup: "Everyone"
+    message: "Health alert: stay indoors and close windows during peak hours.",
+    targetGroup: "Everyone",
   };
   return {
-    message: "Health emergency: entire population is at risk. Stay indoors and use air purifiers.",
-    targetGroup: "Entire population"
+    message: "Emergency conditions. Stay indoors and use filtration if available.",
+    targetGroup: "Entire population",
   };
 }
 
@@ -95,86 +105,68 @@ interface CityAqiConfig {
   o3: number;
   co: number;
   so2: number;
+  o2: number;
+  co2: number;
+  n2: number;
   trend: "Improving" | "Worsening" | "Stable";
   source: string;
+  lastUpdated: string;
 }
 
 const cityConfigs: Record<string, CityAqiConfig> = {
-  "New Delhi": {
-    aqi: 156,
-    pm25: 68.4,
-    pm10: 198,
-    no2: 42,
-    o3: 28,
-    co: 2.1,
-    so2: 18,
-    trend: "Worsening",
-    source: "CPCB India",
-  },
-  "London": {
-    aqi: 42,
-    pm25: 8.2,
-    pm10: 22,
-    no2: 38,
-    o3: 42,
-    co: 0.8,
-    so2: 5,
-    trend: "Stable",
-    source: "DEFRA UK",
-  },
-  "Tokyo": {
-    aqi: 58,
-    pm25: 15.8,
-    pm10: 34,
+  Kolkata: {
+    aqi: 98,
+    pm25: 34.6,
+    pm10: 92,
     no2: 28,
-    o3: 55,
-    co: 1.2,
-    so2: 8,
+    o3: 36,
+    co: 1.1,
+    so2: 9,
+    o2: 20.78,
+    co2: 0.046,
+    n2: 78.09,
     trend: "Improving",
-    source: "MOE Japan",
+    source: "WBPCB · Victoria Memorial station",
+    lastUpdated: "8 min ago",
   },
-  "New York": {
-    aqi: 35,
-    pm25: 6.8,
-    pm10: 18,
-    no2: 32,
-    o3: 38,
-    co: 0.6,
-    so2: 4,
-    trend: "Stable",
-    source: "US EPA",
-  },
-  "Sydney": {
-    aqi: 25,
-    pm25: 4.2,
-    pm10: 12,
-    no2: 15,
-    o3: 32,
-    co: 0.4,
-    so2: 2,
-    trend: "Improving",
-    source: "NSW EPA",
-  },
-  "Dubai": {
-    aqi: 72,
-    pm25: 22.5,
-    pm10: 85,
-    no2: 45,
-    o3: 48,
-    co: 1.5,
-    so2: 12,
+  Delhi: {
+    aqi: 128,
+    pm25: 52.8,
+    pm10: 148,
+    no2: 41,
+    o3: 44,
+    co: 1.8,
+    so2: 14,
+    o2: 20.61,
+    co2: 0.054,
+    n2: 78.02,
     trend: "Worsening",
-    source: "Dubai Municipality",
+    source: "CPCB · RK Puram station",
+    lastUpdated: "11 min ago",
+  },
+  Kharagpur: {
+    aqi: 64,
+    pm25: 19.4,
+    pm10: 48,
+    no2: 16,
+    o3: 31,
+    co: 0.6,
+    so2: 5,
+    o2: 20.89,
+    co2: 0.041,
+    n2: 78.1,
+    trend: "Stable",
+    source: "WBPCB · IIT Kharagpur campus",
+    lastUpdated: "6 min ago",
   },
 };
 
 export function getAqiDetails(cityName: string): AqiDetail {
-  const config = cityConfigs[cityName] || cityConfigs["New York"];
+  const config = cityConfigs[cityName] || cityConfigs.Kolkata;
   const color = getAqiColor(config.aqi);
   const status = getAqiStatus(config.aqi);
   const health = getHealthMessage(config.aqi);
 
-  // Build pollutants, sorted by severity (worst first)
   const rawPollutants: { name: string; formula: string; value: number; unit: string }[] = [
     { name: "PM2.5", formula: "PM₂.₅", value: config.pm25, unit: "µg/m³" },
     { name: "PM10", formula: "PM₁₀", value: config.pm10, unit: "µg/m³" },
@@ -197,12 +189,39 @@ export function getAqiDetails(cityName: string): AqiDetail {
         percent: s.percent,
       };
     })
-    .sort((a, b) => b.percent - a.percent); // Worst first
+    .sort((a, b) => b.percent - a.percent);
+
+  const gases: GasShare[] = [
+    {
+      key: "n2",
+      label: "Nitrogen",
+      formula: "N₂",
+      value: config.n2,
+      unit: "%",
+      note: "Bulk of ambient air. Stable across cities.",
+      color: "#6eb5ff",
+    },
+    {
+      key: "o2",
+      label: "Oxygen",
+      formula: "O₂",
+      value: config.o2,
+      unit: "%",
+      note: "Slightly lower in dense traffic corridors.",
+      color: "#3dd68c",
+    },
+    {
+      key: "co2",
+      label: "Carbon dioxide",
+      formula: "CO₂",
+      value: config.co2,
+      unit: "%",
+      note: "Elevated near traffic and industry.",
+      color: "#e08a3a",
+    },
+  ];
 
   const trendArrow = config.trend === "Improving" ? "↓" : config.trend === "Worsening" ? "↑" : "→";
-
-  // Generate realistic "last updated" time
-  const mins = Math.floor(Math.random() * 40) + 5;
 
   return {
     aqi: config.aqi,
@@ -211,9 +230,10 @@ export function getAqiDetails(cityName: string): AqiDetail {
     healthMessage: health.message,
     targetGroup: health.targetGroup,
     pollutants,
+    gases,
     trend: config.trend,
     trendArrow,
-    lastUpdated: `${mins} min ago`,
+    lastUpdated: config.lastUpdated,
     source: config.source,
   };
 }

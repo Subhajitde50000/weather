@@ -1,4 +1,4 @@
-import { type WeatherTheme, type AppTheme, getTextColors } from "@/data/weatherData";
+import { type AppTheme, type WeatherTheme, getUi } from "@/data/weatherData";
 import { WeatherIcon } from "./WeatherIcon";
 
 interface HeroTemperatureProps {
@@ -10,23 +10,30 @@ interface HeroTemperatureProps {
   appTheme: AppTheme;
 }
 
-export function HeroTemperature({ temp, feelsLike, condition, conditionIcon, theme, appTheme }: HeroTemperatureProps) {
-  const colors = getTextColors(theme, appTheme);
+export function HeroTemperature({
+  temp,
+  feelsLike,
+  condition,
+  conditionIcon,
+  theme: _theme,
+  appTheme,
+}: HeroTemperatureProps) {
+  const ui = getUi(appTheme);
+  void _theme;
 
   return (
-    <div className="flex flex-col items-center justify-center pt-6 pb-4 px-4">
-      <div className="mb-2">
+    <div className="flex flex-col items-center px-4 pb-2 pt-4 text-center lg:items-start lg:px-0 lg:text-left">
+      <div className="mb-3" style={{ animation: "floatY 5.5s ease-in-out infinite" }}>
         <WeatherIcon type={conditionIcon} size="lg" />
       </div>
-      <div className={`${colors.primary} font-extralight leading-none tracking-tighter`} style={{ fontSize: "8.5rem" }}>
+      <div
+        className={`font-display font-light leading-none tracking-tight ${ui.text}`}
+        style={{ fontSize: "clamp(5.4rem, 14vw, 8.4rem)" }}
+      >
         {temp}°
       </div>
-      <div className={`${colors.secondary} text-xl font-light mt-1 tracking-wide`}>
-        {condition}
-      </div>
-      <div className={`${colors.muted} text-sm font-light mt-1`}>
-        Feels like {feelsLike}°
-      </div>
+      <div className={`mt-2 text-xl font-light tracking-wide ${ui.text}`}>{condition}</div>
+      <div className={`mt-1 text-sm font-light ${ui.muted}`}>Feels like {feelsLike}°</div>
     </div>
   );
 }

@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
+  type AppTheme,
   type WeatherTheme,
   themeTextColors,
-  themeGradients,
   citiesWeather,
 } from "@/data/weatherData";
 import {
   type SpaceType,
   type PlantRecommendation,
   type EnvironmentConditions,
+  type Plant,
   getEnvironment,
   getRecommendations,
   getSystemInsight,
@@ -16,12 +17,16 @@ import {
   getAqiLabel,
 } from "@/data/plantData";
 import { PlantDetailPage } from "./PlantDetailPage";
+import { Atmosphere } from "./Atmosphere";
+import { PlantPhoto } from "./PlantPhoto";
 
 interface PlantRecommendationPageProps {
   theme: WeatherTheme;
+  appTheme: AppTheme;
   city: string;
   isOpen: boolean;
   onClose: () => void;
+  onAddPlant: (plant: Plant) => void;
 }
 
 // ========== Environment Card ==========
@@ -92,9 +97,7 @@ function PlantCard({
         <div className="flex gap-4">
           {/* LEFT: Image + name */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
-            <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-3xl border border-white/5">
-              {plant.image}
-            </div>
+            <PlantPhoto src={plant.image} alt={plant.name} size="lg" />
             <span className={`text-sm font-medium ${colors.primary} text-center leading-tight`}>
               {plant.name}
             </span>
@@ -194,18 +197,19 @@ function PlantCard({
 // ========== Main Page Component ==========
 export function PlantRecommendationPage({
   theme,
+  appTheme,
   city,
   isOpen,
   onClose,
+  onAddPlant,
 }: PlantRecommendationPageProps) {
   const [isClosing, setIsClosing] = useState(false);
   const [spaceType, setSpaceType] = useState<SpaceType>("indoor");
   const [selectedPlant, setSelectedPlant] = useState<PlantRecommendation | null>(null);
 
   const colors = themeTextColors[theme];
-  const gradient = themeGradients[theme];
 
-  const cityData = citiesWeather[city] || citiesWeather["New York"];
+  const cityData = citiesWeather[city] || citiesWeather.Kolkata;
 
   const env = useMemo(() => getEnvironment(cityData), [cityData]);
 
@@ -254,13 +258,15 @@ export function PlantRecommendationPage({
   return (
     <>
       <div
-        className={`fixed inset-0 z-[200] bg-gradient-to-b ${gradient} flex flex-col`}
+        className="fixed inset-0 z-[200] flex flex-col"
         style={{
           animation: isClosing
             ? "pageSlideOut 0.2s ease-in forwards"
             : "pageSlideIn 0.3s ease-out",
         }}
       >
+        <Atmosphere theme={theme} appTheme="dark" />
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col">
         {/* ===== Sticky Header ===== */}
         <div className="sticky top-0 z-20 backdrop-blur-xl bg-black/5">
           <div className="max-w-lg mx-auto">
@@ -412,15 +418,17 @@ export function PlantRecommendationPage({
             </div>
           </div>
         </div>
+        </div>
       </div>
 
-      {/* ===== Plant Detail Page ===== */}
       <PlantDetailPage
         theme={theme}
+        appTheme={appTheme}
         recommendation={selectedPlant || recommendations[0]}
         env={env}
         isOpen={!!selectedPlant}
         onClose={() => setSelectedPlant(null)}
+        onAddPlant={onAddPlant}
       />
     </>
   );

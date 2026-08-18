@@ -37,7 +37,7 @@ export interface Plant {
   id: string;
   name: string;
   scientificName: string;
-  image: string; // emoji representation
+  image: string; // photo path under /plants
   spaceType: SpaceType[];
   benefits: PlantBenefit;
   care: PlantCare;
@@ -59,7 +59,7 @@ export const plantDatabase: Plant[] = [
     id: "snake-plant",
     name: "Snake Plant",
     scientificName: "Sansevieria trifasciata",
-    image: "🌿",
+    image: "/plants/snake-plant.jpg",
     spaceType: ["indoor", "balcony"],
     benefits: {
       vocAbsorption: true,
@@ -100,7 +100,7 @@ export const plantDatabase: Plant[] = [
     id: "peace-lily",
     name: "Peace Lily",
     scientificName: "Spathiphyllum wallisii",
-    image: "🌸",
+    image: "/plants/peace-lily.jpg",
     spaceType: ["indoor"],
     benefits: {
       vocAbsorption: true,
@@ -141,7 +141,7 @@ export const plantDatabase: Plant[] = [
     id: "spider-plant",
     name: "Spider Plant",
     scientificName: "Chlorophytum comosum",
-    image: "🌱",
+    image: "/plants/spider-plant.jpg",
     spaceType: ["indoor", "balcony"],
     benefits: {
       vocAbsorption: true,
@@ -182,7 +182,7 @@ export const plantDatabase: Plant[] = [
     id: "aloe-vera",
     name: "Aloe Vera",
     scientificName: "Aloe barbadensis miller",
-    image: "🪴",
+    image: "/plants/aloe-vera.jpg",
     spaceType: ["indoor", "balcony"],
     benefits: {
       vocAbsorption: true,
@@ -223,7 +223,7 @@ export const plantDatabase: Plant[] = [
     id: "areca-palm",
     name: "Areca Palm",
     scientificName: "Dypsis lutescens",
-    image: "🌴",
+    image: "/plants/areca-palm.jpg",
     spaceType: ["indoor", "balcony"],
     benefits: {
       vocAbsorption: true,
@@ -264,7 +264,7 @@ export const plantDatabase: Plant[] = [
     id: "money-plant",
     name: "Money Plant",
     scientificName: "Epipremnum aureum",
-    image: "💚",
+    image: "/plants/money-plant.jpg",
     spaceType: ["indoor", "balcony"],
     benefits: {
       vocAbsorption: true,
@@ -305,7 +305,7 @@ export const plantDatabase: Plant[] = [
     id: "rubber-plant",
     name: "Rubber Plant",
     scientificName: "Ficus elastica",
-    image: "🍀",
+    image: "/plants/rubber-plant.jpg",
     spaceType: ["indoor"],
     benefits: {
       vocAbsorption: true,
@@ -346,7 +346,7 @@ export const plantDatabase: Plant[] = [
     id: "boston-fern",
     name: "Boston Fern",
     scientificName: "Nephrolepis exaltata",
-    image: "🌿",
+    image: "/plants/boston-fern.jpg",
     spaceType: ["indoor", "balcony"],
     benefits: {
       vocAbsorption: true,
@@ -387,7 +387,7 @@ export const plantDatabase: Plant[] = [
     id: "zz-plant",
     name: "ZZ Plant",
     scientificName: "Zamioculcas zamiifolia",
-    image: "🌲",
+    image: "/plants/zz-plant.jpg",
     spaceType: ["indoor"],
     benefits: {
       vocAbsorption: true,
@@ -428,7 +428,7 @@ export const plantDatabase: Plant[] = [
     id: "jade-plant",
     name: "Jade Plant",
     scientificName: "Crassula ovata",
-    image: "🪴",
+    image: "/plants/jade-plant.jpg",
     spaceType: ["indoor", "balcony"],
     benefits: {
       vocAbsorption: false,
@@ -469,7 +469,7 @@ export const plantDatabase: Plant[] = [
     id: "english-ivy",
     name: "English Ivy",
     scientificName: "Hedera helix",
-    image: "🍃",
+    image: "/plants/english-ivy.jpg",
     spaceType: ["indoor", "balcony"],
     benefits: {
       vocAbsorption: true,
@@ -510,7 +510,7 @@ export const plantDatabase: Plant[] = [
     id: "tulsi",
     name: "Tulsi (Holy Basil)",
     scientificName: "Ocimum tenuiflorum",
-    image: "🌿",
+    image: "/plants/tulsi.jpg",
     spaceType: ["balcony"],
     benefits: {
       vocAbsorption: false,
@@ -765,11 +765,11 @@ export function getSystemInsight(
 
 // AQI color helper
 export function getAqiColor(aqi: number): string {
-  if (aqi <= 50) return "#22C55E";
-  if (aqi <= 100) return "#EAB308";
-  if (aqi <= 150) return "#F97316";
-  if (aqi <= 200) return "#EF4444";
-  return "#A855F7";
+  if (aqi <= 50) return "#3dd68c";
+  if (aqi <= 100) return "#e3c15a";
+  if (aqi <= 150) return "#e08a3a";
+  if (aqi <= 200) return "#e25b5b";
+  return "#b06ad4";
 }
 
 export function getAqiLabel(aqi: number): string {

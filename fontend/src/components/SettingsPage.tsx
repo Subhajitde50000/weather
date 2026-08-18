@@ -4,7 +4,8 @@ import {
   type AppTheme,
   type WindUnit,
 } from "@/data/weatherData";
-import { getTextColors, getGradient, getCardBg } from "@/data/weatherData";
+import { getTextColors, getCardBg } from "@/data/weatherData";
+import { Atmosphere } from "./Atmosphere";
 
 interface SettingsPageProps {
   weatherTheme: WeatherTheme;
@@ -326,7 +327,6 @@ export function SettingsPage({
   const [isClosing, setIsClosing] = useState(false);
 
   const colors = getTextColors(weatherTheme, appTheme);
-  const gradient = getGradient(weatherTheme, appTheme);
   const isLight = appTheme === "light";
 
   const handleClose = useCallback(() => {
@@ -352,13 +352,15 @@ export function SettingsPage({
 
   return (
     <div
-      className={`fixed inset-0 z-[200] bg-gradient-to-b ${gradient} flex flex-col`}
+      className="fixed inset-0 z-[200] flex flex-col"
       style={{
         animation: isClosing
           ? "pageSlideOut 0.2s ease-in forwards"
           : "pageSlideIn 0.3s ease-out",
       }}
     >
+      <Atmosphere theme={weatherTheme} appTheme={appTheme} />
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
       {/* ========== Sticky Header ========== */}
       <div
         className={`sticky top-0 z-20 backdrop-blur-xl ${
@@ -563,7 +565,7 @@ export function SettingsPage({
                   Data Source
                 </span>
                 <span className={`text-sm font-light ${colors.muted}`}>
-                  Simulated
+                  Street stations · Aug 2026
                 </span>
               </div>
               <div
@@ -574,7 +576,7 @@ export function SettingsPage({
                   Design
                 </span>
                 <span className={`text-sm font-light ${colors.muted}`}>
-                  Google Weather–inspired
+                  Verdant garden weather
                 </span>
               </div>
             </div>
@@ -590,10 +592,11 @@ export function SettingsPage({
             <p
               className={`text-[10px] uppercase tracking-widest ${colors.muted} opacity-50`}
             >
-              Weather Dashboard · Made with care
-            </p>
+            Verdant · Kolkata · Delhi · Kharagpur
+          </p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

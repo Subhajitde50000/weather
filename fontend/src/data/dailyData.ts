@@ -14,170 +14,92 @@ export interface DailyEntry {
   isToday: boolean;
 }
 
-const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-interface CityDailyPattern {
-  baseHigh: number;
-  baseLow: number;
-  patterns: Array<{
+interface CityDaily {
+  sunrise: string;
+  sunset: string;
+  days: Array<{
+    day: string;
+    date: string;
+    shortDate: string;
     icon: string;
     condition: string;
-    highDelta: number;
-    lowDelta: number;
+    high: number;
+    low: number;
     rain: number;
     wind: number;
     humidity: number;
   }>;
-  sunrise: string;
-  sunset: string;
 }
 
-const cityPatterns: Record<string, CityDailyPattern> = {
-  'New Delhi': {
-    baseHigh: 32,
-    baseLow: 22,
-    sunrise: '6:18 AM',
-    sunset: '6:02 PM',
-    patterns: [
-      { icon: '☀️', condition: 'Sunny', highDelta: 0, lowDelta: 0, rain: 5, wind: 10, humidity: 45 },
-      { icon: '☀️', condition: 'Clear', highDelta: 1, lowDelta: 1, rain: 0, wind: 8, humidity: 40 },
-      { icon: '🌤️', condition: 'Partly Cloudy', highDelta: -1, lowDelta: 0, rain: 10, wind: 12, humidity: 50 },
-      { icon: '⛅', condition: 'Mostly Cloudy', highDelta: -2, lowDelta: 1, rain: 30, wind: 15, humidity: 60 },
-      { icon: '🌧️', condition: 'Rain', highDelta: -4, lowDelta: 2, rain: 70, wind: 20, humidity: 80 },
-      { icon: '⛈️', condition: 'Thunderstorm', highDelta: -5, lowDelta: 2, rain: 85, wind: 25, humidity: 85 },
-      { icon: '🌤️', condition: 'Partly Cloudy', highDelta: -1, lowDelta: 0, rain: 15, wind: 14, humidity: 55 },
-      { icon: '☀️', condition: 'Sunny', highDelta: 1, lowDelta: -1, rain: 5, wind: 9, humidity: 42 },
-      { icon: '☀️', condition: 'Clear', highDelta: 2, lowDelta: -1, rain: 0, wind: 7, humidity: 38 },
-      { icon: '🌤️', condition: 'Hazy Sun', highDelta: 0, lowDelta: 0, rain: 5, wind: 11, humidity: 48 },
+const cityDays: Record<string, CityDaily> = {
+  Kolkata: {
+    sunrise: "5:22 AM",
+    sunset: "6:04 PM",
+    days: [
+      { day: "Today", date: "Aug 18, 2026", shortDate: "Aug 18", icon: "🌧️", condition: "Monsoon showers", high: 31, low: 26, rain: 78, wind: 18, humidity: 86 },
+      { day: "Wed", date: "Aug 19, 2026", shortDate: "Aug 19", icon: "⛈️", condition: "Thunderstorm", high: 30, low: 26, rain: 88, wind: 24, humidity: 90 },
+      { day: "Thu", date: "Aug 20, 2026", shortDate: "Aug 20", icon: "🌧️", condition: "Heavy rain", high: 29, low: 25, rain: 92, wind: 22, humidity: 91 },
+      { day: "Fri", date: "Aug 21, 2026", shortDate: "Aug 21", icon: "🌥️", condition: "Overcast", high: 30, low: 26, rain: 54, wind: 16, humidity: 84 },
+      { day: "Sat", date: "Aug 22, 2026", shortDate: "Aug 22", icon: "🌦️", condition: "Light showers", high: 31, low: 26, rain: 61, wind: 14, humidity: 82 },
+      { day: "Sun", date: "Aug 23, 2026", shortDate: "Aug 23", icon: "⛅", condition: "Partly cloudy", high: 32, low: 27, rain: 38, wind: 12, humidity: 76 },
+      { day: "Mon", date: "Aug 24, 2026", shortDate: "Aug 24", icon: "🌧️", condition: "Rain", high: 30, low: 26, rain: 70, wind: 17, humidity: 85 },
+      { day: "Tue", date: "Aug 25, 2026", shortDate: "Aug 25", icon: "🌥️", condition: "Cloudy", high: 31, low: 26, rain: 45, wind: 13, humidity: 80 },
+      { day: "Wed", date: "Aug 26, 2026", shortDate: "Aug 26", icon: "🌤️", condition: "Hazy sun", high: 33, low: 27, rain: 22, wind: 11, humidity: 72 },
+      { day: "Thu", date: "Aug 27, 2026", shortDate: "Aug 27", icon: "🌧️", condition: "Showers return", high: 31, low: 26, rain: 66, wind: 15, humidity: 83 },
     ],
   },
-  'London': {
-    baseHigh: 12,
-    baseLow: 5,
-    sunrise: '7:42 AM',
-    sunset: '4:38 PM',
-    patterns: [
-      { icon: '🌥️', condition: 'Overcast', highDelta: 0, lowDelta: 0, rain: 40, wind: 18, humidity: 78 },
-      { icon: '🌧️', condition: 'Light Rain', highDelta: -1, lowDelta: 1, rain: 65, wind: 22, humidity: 85 },
-      { icon: '🌧️', condition: 'Rain', highDelta: -2, lowDelta: 1, rain: 80, wind: 25, humidity: 88 },
-      { icon: '🌥️', condition: 'Cloudy', highDelta: 0, lowDelta: 0, rain: 35, wind: 16, humidity: 75 },
-      { icon: '⛅', condition: 'Partly Cloudy', highDelta: 1, lowDelta: -1, rain: 20, wind: 14, humidity: 68 },
-      { icon: '🌤️', condition: 'Mostly Sunny', highDelta: 2, lowDelta: -1, rain: 10, wind: 12, humidity: 60 },
-      { icon: '🌥️', condition: 'Overcast', highDelta: -1, lowDelta: 0, rain: 45, wind: 20, humidity: 80 },
-      { icon: '🌧️', condition: 'Drizzle', highDelta: -1, lowDelta: 1, rain: 55, wind: 18, humidity: 82 },
-      { icon: '⛅', condition: 'Cloudy Spells', highDelta: 0, lowDelta: 0, rain: 30, wind: 15, humidity: 72 },
-      { icon: '🌤️', condition: 'Partly Sunny', highDelta: 1, lowDelta: -1, rain: 15, wind: 13, humidity: 65 },
+  Delhi: {
+    sunrise: "5:51 AM",
+    sunset: "6:55 PM",
+    days: [
+      { day: "Today", date: "Aug 18, 2026", shortDate: "Aug 18", icon: "🌤️", condition: "Humid haze", high: 36, low: 27, rain: 34, wind: 12, humidity: 72 },
+      { day: "Wed", date: "Aug 19, 2026", shortDate: "Aug 19", icon: "☀️", condition: "Hot & humid", high: 37, low: 28, rain: 18, wind: 10, humidity: 68 },
+      { day: "Thu", date: "Aug 20, 2026", shortDate: "Aug 20", icon: "🌦️", condition: "Evening shower", high: 35, low: 27, rain: 52, wind: 16, humidity: 74 },
+      { day: "Fri", date: "Aug 21, 2026", shortDate: "Aug 21", icon: "🌧️", condition: "Monsoon pulse", high: 33, low: 26, rain: 71, wind: 19, humidity: 80 },
+      { day: "Sat", date: "Aug 22, 2026", shortDate: "Aug 22", icon: "🌥️", condition: "Cloudy", high: 34, low: 27, rain: 40, wind: 14, humidity: 73 },
+      { day: "Sun", date: "Aug 23, 2026", shortDate: "Aug 23", icon: "☀️", condition: "Clearing", high: 36, low: 27, rain: 16, wind: 11, humidity: 64 },
+      { day: "Mon", date: "Aug 24, 2026", shortDate: "Aug 24", icon: "🌤️", condition: "Hazy sun", high: 37, low: 28, rain: 20, wind: 13, humidity: 66 },
+      { day: "Tue", date: "Aug 25, 2026", shortDate: "Aug 25", icon: "🌦️", condition: "Scattered rain", high: 34, low: 27, rain: 48, wind: 15, humidity: 75 },
+      { day: "Wed", date: "Aug 26, 2026", shortDate: "Aug 26", icon: "☀️", condition: "Mostly sunny", high: 36, low: 27, rain: 12, wind: 10, humidity: 62 },
+      { day: "Thu", date: "Aug 27, 2026", shortDate: "Aug 27", icon: "🌤️", condition: "Warm haze", high: 37, low: 28, rain: 22, wind: 12, humidity: 67 },
     ],
   },
-  'Tokyo': {
-    baseHigh: 15,
-    baseLow: 6,
-    sunrise: '6:35 AM',
-    sunset: '5:15 PM',
-    patterns: [
-      { icon: '☀️', condition: 'Clear', highDelta: 0, lowDelta: 0, rain: 5, wind: 10, humidity: 50 },
-      { icon: '🌤️', condition: 'Partly Cloudy', highDelta: -1, lowDelta: 1, rain: 15, wind: 12, humidity: 55 },
-      { icon: '🌥️', condition: 'Cloudy', highDelta: -2, lowDelta: 1, rain: 30, wind: 14, humidity: 62 },
-      { icon: '🌧️', condition: 'Rain', highDelta: -3, lowDelta: 2, rain: 70, wind: 18, humidity: 80 },
-      { icon: '🌧️', condition: 'Light Rain', highDelta: -2, lowDelta: 1, rain: 55, wind: 16, humidity: 75 },
-      { icon: '⛅', condition: 'Clearing', highDelta: 0, lowDelta: 0, rain: 20, wind: 11, humidity: 58 },
-      { icon: '☀️', condition: 'Sunny', highDelta: 1, lowDelta: -1, rain: 5, wind: 9, humidity: 48 },
-      { icon: '☀️', condition: 'Clear', highDelta: 2, lowDelta: -1, rain: 0, wind: 8, humidity: 45 },
-      { icon: '🌤️', condition: 'Fair', highDelta: 0, lowDelta: 0, rain: 10, wind: 10, humidity: 52 },
-      { icon: '🌥️', condition: 'Cloudy', highDelta: -1, lowDelta: 1, rain: 35, wind: 13, humidity: 65 },
-    ],
-  },
-  'New York': {
-    baseHigh: 8,
-    baseLow: -1,
-    sunrise: '7:05 AM',
-    sunset: '5:10 PM',
-    patterns: [
-      { icon: '☀️', condition: 'Sunny', highDelta: 0, lowDelta: 0, rain: 5, wind: 15, humidity: 42 },
-      { icon: '🌤️', condition: 'Mostly Sunny', highDelta: 1, lowDelta: 0, rain: 10, wind: 12, humidity: 45 },
-      { icon: '🌥️', condition: 'Cloudy', highDelta: -2, lowDelta: 2, rain: 40, wind: 20, humidity: 65 },
-      { icon: '🌨️', condition: 'Snow Showers', highDelta: -4, lowDelta: 0, rain: 60, wind: 25, humidity: 75 },
-      { icon: '🌥️', condition: 'Overcast', highDelta: -3, lowDelta: 1, rain: 35, wind: 18, humidity: 68 },
-      { icon: '⛅', condition: 'Partly Cloudy', highDelta: -1, lowDelta: 0, rain: 15, wind: 14, humidity: 50 },
-      { icon: '☀️', condition: 'Clear', highDelta: 2, lowDelta: -1, rain: 0, wind: 10, humidity: 38 },
-      { icon: '☀️', condition: 'Sunny', highDelta: 3, lowDelta: -1, rain: 5, wind: 11, humidity: 40 },
-      { icon: '🌤️', condition: 'Fair', highDelta: 1, lowDelta: 0, rain: 10, wind: 13, humidity: 48 },
-      { icon: '🌥️', condition: 'Cloudy', highDelta: -2, lowDelta: 1, rain: 45, wind: 22, humidity: 70 },
-    ],
-  },
-  'Sydney': {
-    baseHigh: 26,
-    baseLow: 19,
-    sunrise: '6:50 AM',
-    sunset: '7:45 PM',
-    patterns: [
-      { icon: '🌤️', condition: 'Partly Cloudy', highDelta: 0, lowDelta: 0, rain: 15, wind: 14, humidity: 60 },
-      { icon: '🌧️', condition: 'Showers', highDelta: -2, lowDelta: 1, rain: 60, wind: 18, humidity: 78 },
-      { icon: '⛈️', condition: 'Thunderstorm', highDelta: -3, lowDelta: 2, rain: 80, wind: 28, humidity: 85 },
-      { icon: '🌥️', condition: 'Cloudy', highDelta: -1, lowDelta: 1, rain: 30, wind: 15, humidity: 65 },
-      { icon: '☀️', condition: 'Sunny', highDelta: 2, lowDelta: -1, rain: 5, wind: 10, humidity: 50 },
-      { icon: '☀️', condition: 'Clear', highDelta: 3, lowDelta: -1, rain: 0, wind: 8, humidity: 45 },
-      { icon: '🌤️', condition: 'Mostly Sunny', highDelta: 1, lowDelta: 0, rain: 10, wind: 12, humidity: 55 },
-      { icon: '🌧️', condition: 'Light Rain', highDelta: -2, lowDelta: 1, rain: 50, wind: 16, humidity: 72 },
-      { icon: '⛅', condition: 'Clearing', highDelta: 0, lowDelta: 0, rain: 20, wind: 13, humidity: 58 },
-      { icon: '☀️', condition: 'Sunny', highDelta: 2, lowDelta: -1, rain: 5, wind: 9, humidity: 48 },
-    ],
-  },
-  'Dubai': {
-    baseHigh: 30,
-    baseLow: 20,
-    sunrise: '6:45 AM',
-    sunset: '5:55 PM',
-    patterns: [
-      { icon: '☀️', condition: 'Sunny', highDelta: 0, lowDelta: 0, rain: 0, wind: 12, humidity: 40 },
-      { icon: '☀️', condition: 'Clear', highDelta: 1, lowDelta: 0, rain: 0, wind: 10, humidity: 38 },
-      { icon: '☀️', condition: 'Hot & Sunny', highDelta: 2, lowDelta: 1, rain: 0, wind: 8, humidity: 35 },
-      { icon: '🌤️', condition: 'Hazy', highDelta: 0, lowDelta: 0, rain: 5, wind: 15, humidity: 45 },
-      { icon: '☀️', condition: 'Sunny', highDelta: 1, lowDelta: -1, rain: 0, wind: 11, humidity: 38 },
-      { icon: '☀️', condition: 'Clear', highDelta: 2, lowDelta: -1, rain: 0, wind: 9, humidity: 35 },
-      { icon: '🌤️', condition: 'Partly Cloudy', highDelta: -1, lowDelta: 1, rain: 10, wind: 14, humidity: 50 },
-      { icon: '☀️', condition: 'Sunny', highDelta: 1, lowDelta: 0, rain: 0, wind: 10, humidity: 40 },
-      { icon: '☀️', condition: 'Clear', highDelta: 2, lowDelta: -1, rain: 0, wind: 8, humidity: 36 },
-      { icon: '🌤️', condition: 'Hazy Sun', highDelta: 0, lowDelta: 0, rain: 5, wind: 13, humidity: 42 },
+  Kharagpur: {
+    sunrise: "5:24 AM",
+    sunset: "6:07 PM",
+    days: [
+      { day: "Today", date: "Aug 18, 2026", shortDate: "Aug 18", icon: "🌥️", condition: "Cloudy with rain", high: 30, low: 25, rain: 62, wind: 14, humidity: 88 },
+      { day: "Wed", date: "Aug 19, 2026", shortDate: "Aug 19", icon: "🌧️", condition: "Steady rain", high: 29, low: 25, rain: 80, wind: 18, humidity: 90 },
+      { day: "Thu", date: "Aug 20, 2026", shortDate: "Aug 20", icon: "⛈️", condition: "Thunderstorm", high: 28, low: 24, rain: 86, wind: 21, humidity: 92 },
+      { day: "Fri", date: "Aug 21, 2026", shortDate: "Aug 21", icon: "🌧️", condition: "Showers", high: 29, low: 25, rain: 68, wind: 15, humidity: 87 },
+      { day: "Sat", date: "Aug 22, 2026", shortDate: "Aug 22", icon: "⛅", condition: "Breaks of sun", high: 31, low: 25, rain: 36, wind: 11, humidity: 78 },
+      { day: "Sun", date: "Aug 23, 2026", shortDate: "Aug 23", icon: "🌤️", condition: "Mostly fair", high: 32, low: 26, rain: 24, wind: 10, humidity: 74 },
+      { day: "Mon", date: "Aug 24, 2026", shortDate: "Aug 24", icon: "🌧️", condition: "Rain returns", high: 29, low: 25, rain: 72, wind: 16, humidity: 86 },
+      { day: "Tue", date: "Aug 25, 2026", shortDate: "Aug 25", icon: "🌥️", condition: "Overcast", high: 30, low: 25, rain: 48, wind: 13, humidity: 82 },
+      { day: "Wed", date: "Aug 26, 2026", shortDate: "Aug 26", icon: "🌦️", condition: "Light rain", high: 30, low: 25, rain: 55, wind: 12, humidity: 81 },
+      { day: "Thu", date: "Aug 27, 2026", shortDate: "Aug 27", icon: "⛅", condition: "Partly cloudy", high: 31, low: 26, rain: 33, wind: 11, humidity: 76 },
     ],
   },
 };
 
-export function getDailyForecast(cityName: string, unit: 'C' | 'F'): DailyEntry[] {
-  const pattern = cityPatterns[cityName] || cityPatterns['New Delhi'];
-  const today = new Date();
-  const days: DailyEntry[] = [];
+export function getDailyForecast(cityName: string, unit: "C" | "F"): DailyEntry[] {
+  const pack = cityDays[cityName] || cityDays.Kolkata;
 
-  for (let i = 0; i < 10; i++) {
-    const date = new Date(today);
-    date.setDate(today.getDate() + i);
-
-    const p = pattern.patterns[i];
-    const highC = pattern.baseHigh + p.highDelta;
-    const lowC = pattern.baseLow + p.lowDelta;
-
-    const high = unit === 'F' ? Math.round(highC * 9 / 5 + 32) : highC;
-    const low = unit === 'F' ? Math.round(lowC * 9 / 5 + 32) : lowC;
-
-    days.push({
-      day: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : dayNames[date.getDay()],
-      date: `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`,
-      shortDate: `${monthNames[date.getMonth()]} ${date.getDate()}`,
-      icon: p.icon,
-      condition: p.condition,
-      high,
-      low,
-      rainPercent: p.rain,
-      wind: p.wind,
-      humidity: p.humidity,
-      sunrise: pattern.sunrise,
-      sunset: pattern.sunset,
-      isToday: i === 0,
-    });
-  }
-
-  return days;
+  return pack.days.map((d, i) => ({
+    day: d.day,
+    date: d.date,
+    shortDate: d.shortDate,
+    icon: d.icon,
+    condition: d.condition,
+    high: unit === "F" ? Math.round((d.high * 9) / 5 + 32) : d.high,
+    low: unit === "F" ? Math.round((d.low * 9) / 5 + 32) : d.low,
+    rainPercent: d.rain,
+    wind: d.wind,
+    humidity: d.humidity,
+    sunrise: pack.sunrise,
+    sunset: pack.sunset,
+    isToday: i === 0,
+  }));
 }
 
 export function getDailyStats(days: DailyEntry[]): {
@@ -187,6 +109,6 @@ export function getDailyStats(days: DailyEntry[]): {
 } {
   const avgHigh = Math.round(days.reduce((s, d) => s + d.high, 0) / days.length);
   const avgLow = Math.round(days.reduce((s, d) => s + d.low, 0) / days.length);
-  const rainyDays = days.filter(d => d.rainPercent >= 40).length;
+  const rainyDays = days.filter((d) => d.rainPercent >= 40).length;
   return { avgHigh, avgLow, rainyDays };
 }
